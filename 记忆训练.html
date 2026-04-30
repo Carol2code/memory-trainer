@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f8f6f1">
+<title>记忆训练</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1814;--ink2:#3d3a34;--ink3:#7a7670;
+  --paper:#f8f6f1;--paper2:#f0ede6;--paper3:#e8e4db;--line:#ddd9d0;
+  --accent:#2a5c8f;--green:#2d7a5a;--red:#b83232;
+  --r:12px;--fh:'Noto Serif SC',serif;--fm:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--fh);overscroll-behavior:none;}
+#app{min-height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
+.scr{display:none;flex-direction:column;min-height:100vh;padding:1.5rem 1.25rem 2rem;}
+.scr.on{display:flex;}
+.scr-mid{align-items:center;justify-content:center;}
+.lbl{font-family:var(--fm);font-size:10px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
+.h1{font-size:26px;font-weight:600;line-height:1.2;margin-bottom:6px;}
+.h2{font-size:19px;font-weight:500;margin-bottom:6px;}
+.muted{color:var(--ink3);}
+.card{background:var(--paper2);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem;margin-bottom:.875rem;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 24px;border-radius:100px;border:none;font-size:14px;font-family:var(--fh);font-weight:500;cursor:pointer;transition:opacity .15s,transform .12s;white-space:nowrap;}
+.btn:active{transform:scale(.96);}
+.btn-ink{background:var(--ink);color:var(--paper);}
+.btn-ink:hover{opacity:.85;}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);}
+.btn-ghost:hover{background:var(--paper3);}
+.btn-sm{padding:8px 18px;font-size:13px;}
+.btn-block{width:100%;}
+.inp{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--paper2);font-size:15px;font-family:var(--fh);color:var(--ink);outline:none;transition:border-color .15s;margin-bottom:.75rem;}
+.inp:focus{border-color:var(--accent);}
+.inp::placeholder{color:var(--ink3);}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-shrink:0;}
+.back{display:flex;align-items:center;gap:3px;font-family:var(--fm);font-size:12px;color:var(--ink3);cursor:pointer;padding:6px 0;}
+.back:hover{color:var(--ink);}
+.tp-mid{font-family:var(--fm);font-size:11px;color:var(--ink3);}
+.prog{height:2px;background:var(--line);border-radius:1px;overflow:hidden;margin-bottom:1.25rem;flex-shrink:0;}
+.prog-fill{height:2px;background:var(--ink);border-radius:1px;transition:width .4s;}
+.dots{display:flex;gap:5px;align-items:center;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--line);transition:all .25s;}
+.dot.act{width:20px;border-radius:3px;background:var(--ink);}
+.dot.dn{background:var(--ink);}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+.stat{background:var(--paper3);border-radius:9px;padding:10px 6px;text-align:center;}
+.stat-n{font-size:21px;font-weight:600;font-family:var(--fm);}
+.stat-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+.fb{font-size:13px;font-family:var(--fm);min-height:20px;text-align:center;margin-bottom:.75rem;transition:color .2s;}
+.fb.ok{color:var(--green);}
+.fb.er{color:var(--red);}
+.fb.in{color:var(--ink3);}
+.arc-wrap{position:relative;width:56px;height:56px;flex-shrink:0;}
+.arc-wrap svg{transform:rotate(-90deg);}
+.arc-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;font-weight:500;}
+.task-item{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer;}
+.task-item:last-child{border-bottom:none;}
+.task-item:active{opacity:.6;}
+.task-icon{width:38px;height:38px;border-radius:10px;background:var(--paper3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.task-name{font-size:14px;font-weight:500;}
+.task-sub{font-size:11px;color:var(--ink3);margin-top:1px;font-family:var(--fm);}
+.task-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.task-check.done{background:var(--ink);border-color:var(--ink);}
+.v-big{font-size:34px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px;}
+.ipa-row{display:flex;gap:16px;margin-bottom:1rem;flex-wrap:wrap;}
+.ipa-item{display:flex;align-items:center;gap:5px;}
+.ipa-flag{font-family:var(--fm);font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;min-width:18px;}
+.ipa-text{font-size:13px;color:var(--ink2);font-family:var(--fm);}
+.spk{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .1s;flex-shrink:0;}
+.spk:hover{background:var(--paper3);}
+.nb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:204px;margin:0 auto 1.25rem;}
+.nb-cell{aspect-ratio:1;border-radius:9px;background:var(--paper3);border:1px solid var(--line);transition:all .12s;}
+.nb-cell.lit{background:var(--ink);border-color:var(--ink);}
+.nb-tile{background:var(--paper3);border-radius:10px;padding:13px 18px;text-align:center;margin-bottom:1rem;}
+.nb-en{font-size:21px;font-weight:600;margin-bottom:3px;}
+.nb-zh{font-size:13px;color:var(--ink2);}
+.obs-wrap{text-align:center;padding:.25rem 0 .875rem;}
+.obs-dots{display:flex;gap:6px;justify-content:center;margin-bottom:.5rem;}
+.obs-dot{width:9px;height:9px;border-radius:50%;background:var(--line);border:1px solid var(--line);transition:all .2s;}
+.obs-dot.filled{background:var(--ink);border-color:var(--ink);}
+.ans-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.875rem;}
+.ans-btn{padding:13px 8px;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:13px;font-family:var(--fh);color:var(--ink);cursor:pointer;transition:all .12s;text-align:center;}
+.ans-btn:hover{background:var(--paper3);}
+.ans-btn:active{transform:scale(.96);}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:.875rem;}
+.chip{padding:10px 16px;border-radius:10px;border:1px solid var(--line);font-size:13px;font-family:var(--fh);color:var(--ink);background:var(--paper3);cursor:pointer;transition:all .12s;text-align:center;}
+.chip:hover{border-color:var(--ink3);}
+.chip:active{transform:scale(.96);}
+.hist-strip{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:22px;margin-bottom:.75rem;align-items:center;}
+.hist-tok{padding:2px 6px;border-radius:4px;font-size:11px;font-family:var(--fm);}
+.tut-box{border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:8px;font-size:13px;line-height:1.7;color:var(--ink2);}
+.tut-box.acc{background:var(--paper3);}
+.tut-seq{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;}
+.tut-tok{padding:4px 8px;border-radius:6px;font-size:12px;font-family:var(--fm);background:var(--paper3);color:var(--ink3);border:1px solid var(--line);}
+.tut-tok.hi{background:#e8f0fb;color:var(--accent);border-color:#b8cef0;}
+.tut-tok.cur{background:var(--paper2);color:var(--ink);border-color:var(--ink3);font-weight:500;}
+.sw-rule{background:var(--paper3);border-radius:8px;padding:9px 14px;font-size:13px;color:var(--ink2);text-align:center;margin-bottom:.75rem;}
+.done-circle{width:60px;height:60px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.result-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);}
+.result-row:last-child{border-bottom:none;}
+.checkin-box{background:var(--paper3);border-radius:10px;padding:1rem;font-family:var(--fm);font-size:12px;line-height:1.9;color:var(--ink2);white-space:pre-wrap;word-break:break-all;margin-bottom:1rem;border:1px solid var(--line);}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:100px;font-size:13px;font-family:var(--fm);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LOGIN -->
+<div class="scr scr-mid on" id="s-login" style="gap:0;">
+  <div style="width:100%;max-width:360px;padding:1rem;">
+    <div class="lbl" style="margin-bottom:.875rem;">工作记忆训练实验</div>
+    <div class="h1" style="font-size:36px;margin-bottom:4px;">记忆<br>训练</div>
+    <div style="font-family:var(--fm);font-size:13px;color:var(--ink3);margin-bottom:2rem;">Memory Training Lab</div>
+    <input class="inp" id="inp-name" placeholder="你的昵称" maxlength="20" autocomplete="off">
+    <input class="inp" id="inp-gid" placeholder="实验组 ID（由主试提供）" maxlength="20" autocomplete="off">
+    <button class="btn btn-ink btn-block" onclick="doLogin()" style="margin-top:.25rem;">进入训练</button>
+    <div style="font-size:12px;color:var(--ink3);text-align:center;margin-top:1.25rem;">每日约 15 分钟 · 训练结束生成打卡文字</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="scr" id="s-home">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;">
+    <div>
+      <div class="lbl" id="home-day">第 1 天</div>
+      <div class="h1" style="font-size:22px;" id="home-name">今日训练</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="lbl">完成进度</div>
+      <div class="arc-wrap" style="margin-top:4px;">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="22" fill="none" stroke="var(--line)" stroke-width="4"/>
+          <circle cx="28" cy="28" r="22" fill="none" stroke="var(--ink)" stroke-width="4"
+            stroke-linecap="round" stroke-dasharray="138.2" id="arc" stroke-dashoffset="138.2"/>
+        </svg>
+        <div class="arc-lbl" id="arc-lbl">0/4</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding:1rem 1.25rem;flex:1;">
+    <div class="lbl" style="margin-bottom:.625rem;">今日任务</div>
+    <div class="task-item" onclick="go('vocab')">
+      <div class="task-icon">📖</div>
+      <div><div class="task-name">词汇预习</div><div class="task-sub">6词 · 美英发音 · 约3分钟</div></div>
+      <div class="task-check" id="tc-vocab"></div>
+    </div>
+    <div class="task-item" onclick="go('nb')">
+      <div class="task-icon">🧩</div>
+      <div><div class="task-name">双通道 N-back</div><div class="task-sub">词义 × 位置 · 约5分钟</div></div>
+      <div class="task-check" id="tc-nb"></div>
+    </div>
+    <div class="task-item" onclick="go('di')">
+      <div class="task-icon">🎯</div>
+      <div><div class="task-name">干扰抑制</div><div class="task-sub">近义词中锁定目标 · 约3分钟</div></div>
+      <div class="task-check" id="tc-di"></div>
+    </div>
+    <div class="task-item" onclick="go('sw')">
+      <div class="task-icon">⚡</div>
+      <div><div class="task-name">注意力切换</div><div class="task-sub">词性 / 语义快速判断 · 约2分钟</div></div>
+      <div class="task-check" id="tc-sw"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-sm" onclick="go('tut')" style="width:100%;margin-top:.875rem;border-style:dashed;">
+    💡 N-back 规则图解
+  </button>
+</div>
+
+<!-- VOCAB -->
+<div class="scr" id="s-vocab">
+  <div class="top">
+    <div class="back" onclick="back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
+    </div>
+    <div class="dots" id="vdots"></div>
+    <div class="tp-mid" id="vtimer">3:00</div>
+  </div>
+  <div class="card" style="flex:1;display:flex;flex-direction:column;">
+    <div class="lbl">词汇预习</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.625rem;">
+      <div>
+        <div class="v-big" id="v-en">—</div>
+        <div style="font-size:16px;color:var(--ink2);margin-top:3px;" id="v-zh"></div>
+      </div>
+      <div style="display:flex;gap:6px;padding-top:6px;">
+        <button class="spk" onclick="spk(0)" title="美音">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="var(--ink2)" stroke-width="1.5" stroke-linecap="round"><path d="M2 5H4.5L7 3v8L4.5 9H2V5z"/><path d="M9 4.5a3.5 3.5 0 010 5"/></svg>
+        </button>
+        <button class="spk" onclick="spk(1)" title="英音" style="opacity:.5;">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="var(--ink2)" stroke-width="1.5" stroke-linecap="round"><path d="M2 5H4.5L7 3v8L4.5 9H2V5z"/><path d="M9 4.5a3.5 3.5 0 010 5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="ipa-row" id="v-ipa"></div>
+    <div style="font-size:13px;color:var(--ink3);line-height:1.8;font-style:italic;flex:1;border-top:1px solid var(--line);padding-top:.875rem;" id="v-ex"></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.875rem;">
+    <button class="btn btn-ghost btn-sm" id="v-prev" onclick="vNav(-1)">上一个</button>
+    <button class="btn btn-ink btn-sm" id="v-next" onclick="vNav(1)">下一个</button>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div class="scr" id="s-tut">
+  <div class="top">
+    <div class="back" onclick="back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
+    </div>
+    <div class="tp-mid" id="tut-lbl">1 / 3</div>
+    <div style="width:44px;"></div>
+  </div>
+  <div class="prog"><div class="prog-fill" id="tut-bar" style="width:33%;"></div></div>
+  <div class="h2" id="tut-title" style="margin-bottom:.875rem;"></div>
+  <div id="tut-body" style="flex:1;"></div>
+  <div style="display:flex;gap:8px;margin-top:1rem;">
+    <button class="btn btn-ghost btn-sm" id="tut-prev" onclick="tutNav(-1)">上一步</button>
+    <button class="btn btn-ink" id="tut-next" onclick="tutNav(1)" style="flex:1;">下一步</button>
+  </div>
+</div>
+
+<!-- N-BACK -->
+<div class="scr" id="s-nb">
+  <div class="top">
+    <div class="back" onclick="back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <div style="width:24px;height:24px;border-radius:50%;background:var(--paper3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;font-weight:500;" id="nb-nbadge">2</div>
+      <span style="font-family:var(--fm);font-size:11px;color:var(--ink3);">-back</span>
+    </div>
+    <div class="tp-mid" id="nb-timer">5:00</div>
+  </div>
+  <div class="prog"><div class="prog-fill" id="nb-bar" style="width:0%;"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="nb-rnd">—</div><div class="stat-l">轮次</div></div>
+    <div class="stat"><div class="stat-n" id="nb-acc">—</div><div class="stat-l">正确</div></div>
+    <div class="stat"><div class="stat-n" id="nb-nv">2</div><div class="stat-l">N 值</div></div>
+  </div>
+  <div style="font-family:var(--fm);font-size:10px;color:var(--ink3);text-align:center;margin-bottom:4px;letter-spacing:.05em;">最近序列 · 蓝色=N步前 · 末位=当前</div>
+  <div class="hist-strip" id="nb-hist"></div>
+  <div class="nb-grid">
+    <div class="nb-cell" id="c0"></div><div class="nb-cell" id="c1"></div><div class="nb-cell" id="c2"></div>
+    <div class="nb-cell" id="c3"></div><div class="nb-cell" id="c4"></div><div class="nb-cell" id="c5"></div>
+    <div class="nb-cell" id="c6"></div><div class="nb-cell" id="c7"></div><div class="nb-cell" id="c8"></div>
+  </div>
+  <div class="nb-tile"><div class="nb-en" id="nb-en">—</div><div class="nb-zh" id="nb-zh"></div></div>
+  <div class="fb in" id="nb-fb">点击开始 · 前 N 轮只需观察</div>
+  <div id="nb-obs" style="display:none;">
+    <div class="obs-wrap">
+      <div class="obs-dots" id="obs-dots"></div>
+      <div style="font-family:var(--fm);font-size:11px;color:var(--ink3);" id="obs-lbl">记忆中</div>
+    </div>
+    <div style="text-align:center;"><button class="btn btn-ghost btn-sm" onclick="nbNext()">下一个 →</button></div>
+  </div>
+  <div id="nb-ans" style="display:none;">
+    <div class="ans-grid">
+      <button class="ans-btn" onclick="nbA('pos')">位置匹配</button>
+      <button class="ans-btn" onclick="nbA('word')">词义匹配</button>
+      <button class="ans-btn" onclick="nbA('both')" style="border-color:var(--ink3);font-weight:500;">两者都匹配</button>
+      <button class="ans-btn" onclick="nbA('none')">都不匹配</button>
+    </div>
+  </div>
+  <div id="nb-start" style="text-align:center;">
+    <button class="btn btn-ink" onclick="nbStart()">开始训练</button>
+  </div>
+</div>
+
+<!-- DISTRACT -->
+<div class="scr" id="s-di">
+  <div class="top">
+    <div class="back" onclick="back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
+    </div>
+    <div class="lbl" style="margin-bottom:0;">干扰抑制</div>
+    <div class="tp-mid" id="di-timer">4:00</div>
+  </div>
+  <div class="prog"><div class="prog-fill" id="di-bar" style="width:0%;"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="di-rnd">—</div><div class="stat-l">轮次</div></div>
+    <div class="stat"><div class="stat-n" id="di-acc">—</div><div class="stat-l">正确</div></div>
+    <div class="stat"><div class="stat-n" id="di-pct">—</div><div class="stat-l">准确率</div></div>
+  </div>
+  <div style="font-size:36px;font-weight:600;text-align:center;padding:1.25rem 0 .5rem;min-height:88px;display:flex;align-items:center;justify-content:center;" id="di-word">—</div>
+  <div style="font-size:13px;color:var(--ink3);text-align:center;min-height:20px;margin-bottom:.625rem;font-family:var(--fm);" id="di-hint"></div>
+  <div class="chips" id="di-chips" style="display:none;"></div>
+  <div class="fb in" id="di-fb">先记住目标词，再从近义词中找出它</div>
+  <div id="di-start" style="text-align:center;"><button class="btn btn-ink" onclick="diStart()">开始训练</button></div>
+</div>
+
+<!-- SWITCH -->
+<div class="scr" id="s-sw">
+  <div class="top">
+    <div class="back" onclick="back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
+    </div>
+    <div class="lbl" style="margin-bottom:0;">注意力切换</div>
+    <div class="tp-mid" id="sw-timer">3:00</div>
+  </div>
+  <div class="prog"><div class="prog-fill" id="sw-bar" style="width:0%;"></div></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sw-rnd">—</div><div class="stat-l">轮次</div></div>
+    <div class="stat"><div class="stat-n" id="sw-acc">—</div><div class="stat-l">正确</div></div>
+    <div class="stat"><div class="stat-n" id="sw-rt">—</div><div class="stat-l">均速ms</div></div>
+  </div>
+  <div class="sw-rule" id="sw-rule">规则将在开始后显示</div>
+  <div style="font-size:44px;font-weight:600;text-align:center;padding:.875rem 0;min-height:80px;display:flex;align-items:center;justify-content:center;" id="sw-stim">?</div>
+  <div class="fb in" id="sw-fb">根据规则快速回答，规则会不时切换</div>
+  <div class="chips" id="sw-chips" style="display:none;"></div>
+  <div id="sw-start" style="text-align:center;"><button class="btn btn-ink" onclick="swStart()">开始训练</button></div>
+</div>
+
+<!-- DONE -->
+<div class="scr" id="s-done" style="padding-top:2rem;">
+  <div style="text-align:center;margin-bottom:1.5rem;">
+    <div class="done-circle">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f8f6f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>
+    </div>
+    <div class="h1">训练完成</div>
+    <div style="font-size:13px;color:var(--ink3);margin-top:4px;font-family:var(--fm);">48小时后记得完成词汇回忆测试</div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem;">
+    <div class="lbl" style="margin-bottom:.75rem;">今日数据</div>
+    <div id="done-stats"></div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem;">
+    <div class="lbl" style="margin-bottom:.75rem;">今日词汇</div>
+    <div id="done-words"></div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <div class="lbl" style="margin-bottom:0;">打卡文字</div>
+      <div style="font-size:11px;color:var(--ink3);font-family:var(--fm);">复制后发到微信群</div>
+    </div>
+    <div class="checkin-box" id="checkin-box"></div>
+    <button class="btn btn-ink btn-block" onclick="doCopy()">一键复制打卡文字</button>
+  </div>
+  <button class="btn btn-ghost btn-block" onclick="go('home')" style="margin-top:.5rem;">返回主页</button>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var WORDS=[
+  {en:'ephemeral',zh:'短暂的',us:'efemeral',uk:'efemeral',ex:'The ephemeral nature of fame makes it a poor life goal.'},
+  {en:'tenacious',zh:'顽强的',us:'tenacious',uk:'tenacious',ex:'Her tenacious spirit helped her overcome every obstacle.'},
+  {en:'pragmatic',zh:'务实的',us:'pragmatic',uk:'pragmatic',ex:'A pragmatic approach focuses on what actually works.'},
+  {en:'eloquent',zh:'雄辩的',us:'eloquent',uk:'eloquent',ex:'His eloquent speech moved the entire audience.'},
+  {en:'meticulous',zh:'一丝不苟的',us:'meticulous',uk:'meticulous',ex:'The meticulous editor caught every minor error.'},
+  {en:'resilient',zh:'有韧性的',us:'resilient',uk:'resilient',ex:'Resilient communities recover faster from disasters.'},
+];
+var IPA=[
+  {us:'ɪˈfem.ər.əl',uk:'ɪˈfem.ər.əl'},
+  {us:'təˈneɪ.ʃəs',uk:'təˈneɪ.ʃəs'},
+  {us:'præɡˈmæt.ɪk',uk:'præɡˈmæt.ɪk'},
+  {us:'ˈel.ə.kwənt',uk:'ˈel.ə.kwənt'},
+  {us:'məˈtɪk.jə.ləs',uk:'məˈtɪk.jʊ.ləs'},
+  {us:'rɪˈzɪl.i.ənt',uk:'rɪˈzɪl.i.ənt'},
+];
+var DI_SETS=[
+  {t:'ephemeral',zh:'短暂的',d:['temporary','fleeting','transient','transitory']},
+  {t:'tenacious',zh:'顽强的',d:['stubborn','persistent','resolute','steadfast']},
+  {t:'pragmatic',zh:'务实的',d:['practical','realistic','sensible','utilitarian']},
+  {t:'eloquent',zh:'雄辩的',d:['articulate','fluent','expressive','persuasive']},
+  {t:'meticulous',zh:'一丝不苟的',d:['careful','precise','thorough','scrupulous']},
+  {t:'resilient',zh:'有韧性的',d:['tough','robust','sturdy','durable']},
+];
+var SW_RULES=[
+  {label:'词性：名词 or 动词？',gen:function(){var ns=['freedom','memory','logic','theory','system'],vs=['analyze','persist','enhance','recall','adapt'],isN=Math.random()>.5,w=isN?ns[~~(Math.random()*ns.length)]:vs[~~(Math.random()*vs.length)];return{s:w,a:isN?'名词':'动词',c:['名词','动词']};}},
+  {label:'语义：正面 or 负面？',gen:function(){var p=['resilient','eloquent','lucid','tenacious','pragmatic'],n=['dormant','vehement','erratic','garrulous','querulous'],isP=Math.random()>.5,w=isP?p[~~(Math.random()*p.length)]:n[~~(Math.random()*n.length)];return{s:w,a:isP?'正面':'负面',c:['正面','负面']};}},
+];
+var S={name:'',gid:'',day:1,done:{vocab:false,nb:false,di:false,sw:false},nbN:2,nbC:0,nbT:0,diC:0,diT:0,swC:0,swT:0,swRts:[],startTs:0,timers:{}};
+function $$(i){return document.getElementById(i);}
+function show(i){$$(i).style.display='';}
+function hide(i){$$(i).style.display='none';}
+function setScr(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});$$(id).classList.add('on');window.scrollTo(0,0);}
+function toast(msg,dur){var t=$$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2000);}
+function pad(n){return n<10?'0'+n:n;}
+function countdown(elId,secs,cb){clearInterval(S.timers[elId]);var s=secs;function tick(){var el=$$(elId);if(el)el.textContent=Math.floor(s/60)+':'+pad(s%60);if(s<=0){clearInterval(S.timers[elId]);if(cb)cb();}s--;}tick();S.timers[elId]=setInterval(tick,1000);}
+function stopTimers(){Object.keys(S.timers).forEach(function(k){clearInterval(S.timers[k]);});}
+var vIdx=0;
+function spk(acc){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(WORDS[vIdx].en);u.lang=acc===1?'en-GB':'en-US';u.rate=0.82;window.speechSynthesis.speak(u);}
+function doLogin(){var name=($$('inp-name').value||'').trim(),gid=($$('inp-gid').value||'').trim();if(!name){toast('请填写昵称');return;}if(!gid){toast('请填写实验组 ID');return;}S.name=name;S.gid=gid;S.startTs=Date.now();try{var saved=localStorage.getItem('wm:'+gid+':'+name);if(saved){var d=JSON.parse(saved);S.day=d.day||1;S.nbN=d.nbN||2;}}catch(e){}go('home');}
+$$('inp-gid').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+var prevScr='s-home';
+function go(id){stopTimers();prevScr=document.querySelector('.scr.on')?.id||'s-home';if(id==='home'){setScr('s-home');updateHome();return;}if(id==='vocab'){startVocab();return;}if(id==='tut'){startTut();return;}if(id==='nb'){setScr('s-nb');return;}if(id==='di'){setScr('s-di');return;}if(id==='sw'){setScr('s-sw');return;}}
+function back(){stopTimers();setScr('s-home');updateHome();}
+function updateHome(){$$('home-name').textContent=S.name;$$('home-day').textContent='第 '+S.day+' 天  ·  '+S.gid+' 组';var done=Object.values(S.done).filter(Boolean).length;$$('arc').style.strokeDashoffset=138.2*(1-done/4);$$('arc-lbl').textContent=done+'/4';['vocab','nb','di','sw'].forEach(function(t){var el=$$('tc-'+t);if(S.done[t]){el.className='task-check done';el.innerHTML='<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#f8f6f1" stroke-width="2" stroke-linecap="round"><path d="M2 5l2 2.5L8 3"/></svg>';}else{el.className='task-check';el.innerHTML='';}});if(done===4){setTimeout(function(){setScr('s-done');fillDone();},600);}}
+function startVocab(){vIdx=0;setScr('s-vocab');countdown('vtimer',180,function(){S.done.vocab=true;saveLocal();back();});renderVocab();}
+function renderVocab(){var w=WORDS[vIdx],ipa=IPA[vIdx];$$('v-en').textContent=w.en;$$('v-zh').textContent=w.zh;$$('v-ipa').innerHTML='<div class="ipa-item"><span class="ipa-flag">美</span><span class="ipa-text">/'+ipa.us+'/</span></div><div class="ipa-item"><span class="ipa-flag">英</span><span class="ipa-text">/'+ipa.uk+'/</span></div>';$$('v-ex').textContent='"'+w.ex+'"';var dots='';for(var i=0;i<WORDS.length;i++)dots+='<div class="dot'+(i<vIdx?' dn':i===vIdx?' act':'')+'"></div>';$$('vdots').innerHTML=dots;$$('v-prev').style.visibility=vIdx===0?'hidden':'visible';$$('v-next').textContent=vIdx===WORDS.length-1?'完成 ✓':'下一个';setTimeout(function(){spk(0);},200);}
+function vNav(d){if(d>0&&vIdx===WORDS.length-1){clearInterval(S.timers['vtimer']);S.done.vocab=true;saveLocal();back();return;}vIdx=Math.max(0,Math.min(WORDS.length-1,vIdx+d));renderVocab();}
+var tutStep=0;
+var TUTS=[
+  {title:'"N步前"是什么意思？',body:function(){return '<div class="tut-box">单词像传送带一个接一个出现。<b>2-back</b> = 把当前这个，和往回数 2 格的那个比较——不是和"上一个"比。</div><div class="tut-seq"><div class="tut-tok">ephemeral</div><div class="tut-tok">pragmatic</div><div class="tut-tok hi">tenacious</div><div class="tut-tok">pragmatic</div><div class="tut-tok cur">tenacious ← 当前</div></div><div class="tut-box acc">当前 = <b>tenacious</b>，往回 2 格 = <b>tenacious</b>（蓝色）<br>→ 匹配！回答"词义匹配"</div>';}},
+  {title:'同时追踪两条信息',body:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">▦</div><b>格子位置</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一格？</div></div><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">文</div><b>单词释义</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一词？</div></div></div><div class="tut-box acc"><b>四种回答：</b>位置匹配 · 词义匹配 · 两者都匹配 · 都不匹配。两通道独立判断，可以只有一边匹配。</div>';}},
+  {title:'前N轮观察，之后才作答',body:function(){return '<div class="tut-box">前 2 轮还没有"N步前"，只需看和记，点<b>下一个</b>翻页。第 3 轮起才出现作答按钮。</div><div class="tut-box">难度自动调整：答对率 ≥ 80% → N+1；答对率 &lt; 50% → N-1。</div><div class="tut-box acc">不确定就大胆猜。目标是让脑子处于<b>轻微吃力</b>的状态——这是效果最好的训练区间。</div>';}},
+];
+function startTut(){tutStep=0;setScr('s-tut');renderTut();}
+function renderTut(){var t=TUTS[tutStep];$$('tut-title').textContent=t.title;$$('tut-body').innerHTML=t.body();$$('tut-lbl').textContent=(tutStep+1)+' / '+TUTS.length;$$('tut-bar').style.width=((tutStep+1)/TUTS.length*100)+'%';$$('tut-prev').style.visibility=tutStep===0?'hidden':'visible';$$('tut-next').textContent=tutStep===TUTS.length-1?'明白了，返回 →':'下一步';}
+function tutNav(d){if(d>0&&tutStep===TUTS.length-1){back();return;}tutStep=Math.max(0,Math.min(TUTS.length-1,tutStep+d));renderTut();}
+var NB={h:[],r:0,c:0,t:0,n:2,pm:false,wm:false,phase:'start'};
+function nbStart(){NB={h:[],r:0,c:0,t:0,n:S.nbN,pm:false,wm:false,phase:'obs'};hide('nb-start');countdown('nb-timer',300,nbEnd);$$('nb-fb').textContent='';$$('nb-fb').className='fb in';nbStep();}
+function nbNext(){if(NB.phase==='obs')nbStep();}
+function nbStep(){if(NB.r>=20){nbEnd();return;}NB.r++;$$('nb-rnd').textContent=NB.r;$$('nb-bar').style.width=(NB.r/20*100)+'%';$$('nb-nbadge').textContent=NB.n;$$('nb-nv').textContent=NB.n;var pos=~~(Math.random()*9),word=WORDS[~~(Math.random()*WORDS.length)];if(NB.h.length>=NB.n&&Math.random()<.35)pos=NB.h[NB.h.length-NB.n].p;if(NB.h.length>=NB.n&&Math.random()<.35)word=NB.h[NB.h.length-NB.n].w;NB.pm=NB.h.length>=NB.n&&pos===NB.h[NB.h.length-NB.n].p;NB.wm=NB.h.length>=NB.n&&word.en===NB.h[NB.h.length-NB.n].w.en;NB.h.push({p:pos,w:word});for(var i=0;i<9;i++)$$('c'+i).className='nb-cell';$$('c'+pos).classList.add('lit');$$('nb-en').textContent=word.en;$$('nb-zh').textContent=word.zh;var tIdx=NB.h.length-1-NB.n,hHtml='';NB.h.slice(-8).forEach(function(item,i,arr){var ai=NB.h.length-arr.length+i,st;if(ai===NB.h.length-1)st='background:var(--paper2);color:var(--ink);border:1px solid var(--ink3);';else if(ai===tIdx)st='background:#e8f0fb;color:var(--accent);border:1px solid #b8cef0;';else st='background:var(--paper3);color:var(--ink3);border:1px solid var(--line);';hHtml+='<div class="hist-tok" style="'+st+'">'+item.w.en.slice(0,7)+'</div>';});$$('nb-hist').innerHTML=hHtml;var canAns=NB.h.length>NB.n;if(!canAns){NB.phase='obs';hide('nb-ans');show('nb-obs');var rem=NB.n-(NB.r-1),dots='';for(var j=0;j<NB.n;j++)dots+='<div class="obs-dot'+(j>=rem?' filled':'')+'"></div>';$$('obs-dots').innerHTML=dots;$$('obs-lbl').textContent='记忆中，还需 '+Math.max(0,rem-1)+' 步后开始作答';$$('nb-fb').textContent='';}else{NB.phase='ans';hide('nb-obs');show('nb-ans');$$('nb-fb').textContent='判断：与 '+NB.n+' 步前比较';$$('nb-fb').className='fb in';}}
+function nbA(ans){if(NB.phase!=='ans')return;var ok=(ans==='pos'&&NB.pm&&!NB.wm)||(ans==='word'&&NB.wm&&!NB.pm)||(ans==='both'&&NB.pm&&NB.wm)||(ans==='none'&&!NB.pm&&!NB.wm);NB.t++;if(ok)NB.c++;$$('nb-acc').textContent=NB.c+'/'+NB.t;if(ok){$$('nb-fb').textContent='正确';$$('nb-fb').className='fb ok';}else{var ca=NB.pm&&NB.wm?'两者都匹配':NB.pm?'位置匹配':NB.wm?'词义匹配':'都不匹配';$$('nb-fb').textContent='应为：'+ca;$$('nb-fb').className='fb er';}if(NB.t>=4&&NB.c/NB.t>=.8)NB.n=Math.min(NB.n+1,5);else if(NB.t>=4&&NB.c/NB.t<.5)NB.n=Math.max(NB.n-1,1);NB.phase='wait';setTimeout(nbStep,680);}
+function nbEnd(){clearInterval(S.timers['nb-timer']);S.nbN=NB.n;S.nbC=NB.c;S.nbT=NB.t;S.done.nb=true;hide('nb-obs');hide('nb-ans');$$('nb-fb').textContent='完成 · N='+NB.n+' · 准确率 '+Math.round(NB.c/Math.max(NB.t,1)*100)+'%';$$('nb-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
+var DI={r:0,c:0,t:0,cur:null};
+function diStart(){DI={r:0,c:0,t:0,cur:null};hide('di-start');countdown('di-timer',240,diEnd);diNext();}
+function diNext(){if(DI.r>=DI_SETS.length){diEnd();return;}DI.cur=DI_SETS[DI.r];DI.r++;$$('di-rnd').textContent=DI.r;$$('di-bar').style.width=(DI.r/DI_SETS.length*100)+'%';$$('di-word').textContent=DI.cur.t;$$('di-word').style.color='var(--accent)';$$('di-word').style.fontSize='36px';$$('di-hint').textContent='含义：'+DI.cur.zh;$$('di-chips').style.display='none';$$('di-fb').textContent='先记住这个词！';$$('di-fb').className='fb in';setTimeout(function(){$$('di-word').textContent='从以下词中找出它';$$('di-word').style.color='var(--ink3)';$$('di-word').style.fontSize='16px';$$('di-hint').textContent='';var ch=[DI.cur.t,...DI.cur.d].sort(function(){return Math.random()-.5;});$$('di-chips').innerHTML=ch.map(function(c){return '<div class="chip" onclick="diAns(\''+c+'\',this)">'+c+'</div>';}).join('');$$('di-chips').style.display='flex';},1200);}
+function diAns(w,el){DI.t++;var ok=w===DI.cur.t;if(ok){DI.c++;el.style.background='#e2f5ec';el.style.borderColor='#a8dfc0';el.style.color='var(--green)';$$('di-fb').textContent='正确';$$('di-fb').className='fb ok';}else{el.style.background='#fde8e8';el.style.borderColor='#f0b4b4';el.style.color='var(--red)';$$('di-fb').textContent='错误，目标是：'+DI.cur.t;$$('di-fb').className='fb er';}$$('di-acc').textContent=DI.c+'/'+DI.t;$$('di-pct').textContent=Math.round(DI.c/DI.t*100)+'%';$$('di-chips').querySelectorAll('.chip').forEach(function(c){c.onclick=null;});setTimeout(function(){$$('di-chips').style.display='none';diNext();},900);}
+function diEnd(){clearInterval(S.timers['di-timer']);S.diC=DI.c;S.diT=DI.t;S.done.di=true;$$('di-fb').textContent='完成！准确率 '+Math.round(DI.c/Math.max(DI.t,1)*100)+'%';$$('di-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
+var SW={r:0,c:0,t:0,rts:[],ri:0,t0:0,ans:''};
+function swStart(){SW={r:0,c:0,t:0,rts:[],ri:0,t0:0,ans:''};hide('sw-start');countdown('sw-timer',180,swEnd);swNext();}
+function swNext(){if(SW.r>=14){swEnd();return;}SW.r++;if(SW.r>1&&Math.random()<.4)SW.ri=(SW.ri+1)%SW_RULES.length;var rule=SW_RULES[SW.ri],item=rule.gen();SW.ans=item.a;$$('sw-rule').textContent='规则：'+rule.label;$$('sw-stim').textContent=item.s;$$('sw-rnd').textContent=SW.r;$$('sw-bar').style.width=(SW.r/14*100)+'%';$$('sw-chips').innerHTML=item.c.map(function(c){return '<div class="chip" onclick="swAns(\''+c+'\',this)">'+c+'</div>';}).join('');$$('sw-chips').style.display='flex';SW.t0=Date.now();$$('sw-fb').textContent='快速判断！';$$('sw-fb').className='fb in';}
+function swAns(ans,el){var rt=Date.now()-SW.t0;SW.t++;SW.rts.push(rt);var ok=ans===SW.ans;if(ok){SW.c++;el.style.background='#e2f5ec';el.style.borderColor='#a8dfc0';el.style.color='var(--green)';$$('sw-fb').textContent='正确 ('+rt+'ms)';$$('sw-fb').className='fb ok';}else{el.style.background='#fde8e8';el.style.borderColor='#f0b4b4';el.style.color='var(--red)';$$('sw-fb').textContent='应为：'+SW.ans;$$('sw-fb').className='fb er';}$$('sw-acc').textContent=SW.c+'/'+SW.t;var avg=Math.round(SW.rts.reduce(function(a,b){return a+b;},0)/SW.rts.length);$$('sw-rt').textContent=avg;$$('sw-chips').querySelectorAll('.chip').forEach(function(c){c.onclick=null;});setTimeout(function(){$$('sw-chips').style.display='none';swNext();},780);}
+function swEnd(){clearInterval(S.timers['sw-timer']);S.swC=SW.c;S.swT=SW.t;S.swRts=SW.rts;S.done.sw=true;var avg=S.swRts.length?Math.round(S.swRts.reduce(function(a,b){return a+b;},0)/S.swRts.length):0;$$('sw-fb').textContent='完成！准确率 '+Math.round(S.swC/Math.max(S.swT,1)*100)+'% · 均速 '+avg+'ms';$$('sw-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
+function fillDone(){var nbPct=Math.round(S.nbC/Math.max(S.nbT,1)*100),diPct=Math.round(S.diC/Math.max(S.diT,1)*100),swPct=Math.round(S.swC/Math.max(S.swT,1)*100),swAvg=S.swRts.length?Math.round(S.swRts.reduce(function(a,b){return a+b;},0)/S.swRts.length):0,elapsed=Math.round((Date.now()-S.startTs)/1000),em=Math.floor(elapsed/60),es=elapsed%60;$$('done-stats').innerHTML=[['N-back N值','N = '+S.nbN+' · 准确率 '+nbPct+'%'],['干扰抑制','准确率 '+diPct+'%'],['注意力切换','准确率 '+swPct+'% · 均速 '+swAvg+'ms'],['训练时长',em+'分'+pad(es)+'秒']].map(function(r){return '<div class="result-row"><span style="font-size:13px;color:var(--ink3);">'+r[0]+'</span><span style="font-family:var(--fm);font-size:13px;">'+r[1]+'</span></div>';}).join('');$$('done-words').innerHTML=WORDS.map(function(w){return '<div class="result-row"><span style="font-size:14px;font-weight:500;">'+w.en+'</span><span style="font-size:13px;color:var(--ink3);">'+w.zh+'</span></div>';}).join('');var wList=WORDS.map(function(w){return w.en;}).join(' · '),txt='【记忆训练打卡】Day '+S.day+' · '+S.name+'\n实验组：'+S.gid+'\n\n📊 今日数据\nN-back   N='+S.nbN+' · 准确率 '+nbPct+'%\n干扰抑制  准确率 '+diPct+'%\n注意切换  准确率 '+swPct+'% · 均速 '+swAvg+'ms\n训练时长  '+em+'分'+pad(es)+'秒\n\n📖 今日词汇\n'+wList;$$('checkin-box').textContent=txt;S.day++;saveLocal();}
+function doCopy(){var txt=$$('checkin-box').textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('已复制，粘贴到微信群即可 ✓',2500);}).catch(function(){fallbackCopy(txt);});}else{fallbackCopy(txt);}}
+function fallbackCopy(txt){var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制 ✓',2000);}catch(e){toast('请手动长按复制上方文字',3000);}document.body.removeChild(ta);}
+function saveLocal(){try{localStorage.setItem('wm:'+S.gid+':'+S.name,JSON.stringify({day:S.day,nbN:S.nbN,ts:Date.now()}));}catch(e){}}
+</script>
+</body>
+</html>
