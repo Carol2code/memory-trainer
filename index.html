@@ -7,11 +7,12 @@
 <meta name="theme-color" content="#f8f6f1">
 <title>记忆训练</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
   --ink:#1a1814;--ink2:#3d3a34;--ink3:#7a7670;
   --paper:#f8f6f1;--paper2:#f0ede6;--paper3:#e8e4db;--line:#ddd9d0;
-  --accent:#2a5c8f;--green:#2d7a5a;--red:#b83232;
+  --accent:#2a5c8f;--green:#2d7a5a;--red:#b83232;--gold:#8a6800;
   --r:12px;--fh:'Noto Serif SC',serif;--fm:'DM Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -23,7 +24,6 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .lbl{font-family:var(--fm);font-size:10px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}
 .h1{font-size:26px;font-weight:600;line-height:1.2;margin-bottom:6px;}
 .h2{font-size:19px;font-weight:500;margin-bottom:6px;}
-.muted{color:var(--ink3);}
 .card{background:var(--paper2);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem;margin-bottom:.875rem;}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 24px;border-radius:100px;border:none;font-size:14px;font-family:var(--fh);font-weight:500;cursor:pointer;transition:opacity .15s,transform .12s;white-space:nowrap;}
 .btn:active{transform:scale(.96);}
@@ -31,11 +31,14 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .btn-ink:hover{opacity:.85;}
 .btn-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);}
 .btn-ghost:hover{background:var(--paper3);}
+.btn-warn{background:var(--gold);color:#fff;}
+.btn-green{background:var(--green);color:#fff;}
 .btn-sm{padding:8px 18px;font-size:13px;}
 .btn-block{width:100%;}
 .inp{width:100%;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--paper2);font-size:15px;font-family:var(--fh);color:var(--ink);outline:none;transition:border-color .15s;margin-bottom:.75rem;}
 .inp:focus{border-color:var(--accent);}
 .inp::placeholder{color:var(--ink3);}
+.inp-sm{padding:8px 12px;font-size:13px;margin-bottom:0;border-radius:8px;}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-shrink:0;}
 .back{display:flex;align-items:center;gap:3px;font-family:var(--fm);font-size:12px;color:var(--ink3);cursor:pointer;padding:6px 0;}
 .back:hover{color:var(--ink);}
@@ -103,6 +106,46 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 .result-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);}
 .result-row:last-child{border-bottom:none;}
 .checkin-box{background:var(--paper3);border-radius:10px;padding:1rem;font-family:var(--fm);font-size:12px;line-height:1.9;color:var(--ink2);white-space:pre-wrap;word-break:break-all;margin-bottom:1rem;border:1px solid var(--line);}
+.recall-item{margin-bottom:1rem;}
+.recall-word{font-size:18px;font-weight:600;margin-bottom:4px;}
+.recall-inp{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--paper2);font-size:14px;font-family:var(--fh);color:var(--ink);outline:none;transition:border-color .15s;}
+.recall-inp:focus{border-color:var(--accent);}
+.notice{background:#fef9e7;border:1px solid #f0d060;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--gold);margin-bottom:.875rem;line-height:1.6;}
+/* export box */
+.export-box{background:var(--paper3);border-radius:10px;padding:1rem;font-family:var(--fm);font-size:11px;line-height:1.8;color:var(--ink2);word-break:break-all;margin-bottom:1rem;border:1px solid var(--line);max-height:120px;overflow:hidden;position:relative;}
+.export-box::after{content:'';position:absolute;bottom:0;left:0;right:0;height:32px;background:linear-gradient(transparent,var(--paper3));}
+/* report banner */
+.report-banner{background:linear-gradient(135deg,#1a1814 0%,#3d3a34 100%);border-radius:12px;padding:1.25rem;margin-bottom:.875rem;cursor:pointer;transition:opacity .15s;}
+.report-banner:hover{opacity:.88;}
+.report-banner:active{transform:scale(.98);}
+/* report */
+.rpt-hero{text-align:center;padding:1.5rem 0 1rem;}
+.rpt-name{font-size:28px;font-weight:600;margin-bottom:2px;}
+.rpt-sub{font-size:13px;color:var(--ink3);font-family:var(--fm);}
+.rpt-verdict{border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:14px;line-height:1.75;color:var(--ink2);border-left:3px solid var(--line);}
+.rpt-4cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.rpt-card{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;}
+.rpt-card-n{font-size:26px;font-weight:600;font-family:var(--fm);}
+.rpt-card-n.up{color:var(--green);}
+.rpt-card-n.mid{color:var(--gold);}
+.rpt-card-l{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-top:3px;font-family:var(--fm);}
+.rpt-chart-wrap{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:1rem;margin-bottom:1rem;}
+.rpt-week-item{padding:12px 0;border-bottom:1px solid var(--line);}
+.rpt-week-item:last-child{border-bottom:none;}
+.rpt-week-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.rpt-week-name{font-size:13px;font-weight:500;}
+.rpt-score-pill{font-family:var(--fm);font-size:12px;padding:2px 8px;border-radius:6px;}
+.rpt-score-pill.hi{background:#e2f5ec;color:var(--green);}
+.rpt-score-pill.mid{background:#fef9e7;color:var(--gold);}
+.rpt-score-pill.lo{background:#fde8e8;color:var(--red);}
+.rpt-week-comment{font-size:12px;color:var(--ink3);line-height:1.6;margin-top:3px;}
+/* admin */
+.adm-user-row{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:1rem;margin-bottom:.75rem;}
+.adm-user-name{font-size:15px;font-weight:500;margin-bottom:8px;}
+.adm-score-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;}
+.adm-score-label{font-size:10px;color:var(--ink3);font-family:var(--fm);text-align:center;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;}
+.adm-score-inp{width:100%;padding:6px 4px;border-radius:6px;border:1px solid var(--line);background:var(--paper);font-size:14px;font-family:var(--fm);text-align:center;color:var(--ink);outline:none;}
+.adm-score-inp:focus{border-color:var(--accent);}
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:100px;font-size:13px;font-family:var(--fm);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
 </style>
@@ -118,8 +161,47 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <div style="font-family:var(--fm);font-size:13px;color:var(--ink3);margin-bottom:2rem;">Memory Training Lab</div>
     <input class="inp" id="inp-name" placeholder="你的昵称" maxlength="20" autocomplete="off">
     <input class="inp" id="inp-gid" placeholder="实验组 ID（由主试提供）" maxlength="20" autocomplete="off">
-    <button class="btn btn-ink btn-block" onclick="doLogin()" style="margin-top:.25rem;">进入训练</button>
-    <div style="font-size:12px;color:var(--ink3);text-align:center;margin-top:1.25rem;">每日约 15 分钟 · 训练结束生成打卡文字</div>
+    <button class="btn btn-ink btn-block" onclick="doLogin()">进入训练</button>
+    <div style="margin-top:.75rem;text-align:center;">
+      <span style="font-size:12px;color:var(--ink3);cursor:pointer;text-decoration:underline;" onclick="go('admin-login')">主试入口</span>
+    </div>
+    <div style="font-size:12px;color:var(--ink3);text-align:center;margin-top:.75rem;">每日约 15 分钟 · 进度自动保存</div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="scr scr-mid" id="s-admin-login" style="gap:0;">
+  <div style="width:100%;max-width:360px;padding:1rem;">
+    <div class="lbl" style="margin-bottom:.875rem;">主试管理入口</div>
+    <div class="h1" style="font-size:28px;margin-bottom:1.5rem;">实验管理</div>
+    <input class="inp" id="inp-admin-pw" placeholder="管理员密码" type="password" autocomplete="off">
+    <button class="btn btn-ink btn-block" onclick="doAdminLogin()">进入管理</button>
+    <div style="margin-top:.75rem;text-align:center;">
+      <span class="back" style="justify-content:center;" onclick="go('login')">← 返回</span>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="scr" id="s-admin">
+  <div class="top">
+    <div class="back" onclick="go('login')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>退出</div>
+    <div class="lbl" style="margin-bottom:0;">实验管理</div>
+    <div style="width:44px;"></div>
+  </div>
+
+  <!-- paste user data -->
+  <div class="card" style="margin-bottom:1rem;">
+    <div class="lbl" style="margin-bottom:.5rem;">导入用户数据</div>
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:.75rem;line-height:1.6;">将用户发给你的数据字符串粘贴到下方，自动解析并添加。</div>
+    <textarea class="inp" id="adm-paste" rows="3" placeholder="粘贴用户发来的数据字符串…" style="resize:none;font-size:13px;font-family:var(--fm);"></textarea>
+    <button class="btn btn-ink btn-sm" onclick="importUserData()">解析并添加</button>
+  </div>
+
+  <div class="lbl" style="margin-bottom:.5rem;">用户列表</div>
+  <div id="admin-users"></div>
+  <div style="margin-top:.5rem;text-align:center;">
+    <button class="btn btn-ghost btn-sm" onclick="addAdminUser()">+ 手动添加用户</button>
   </div>
 </div>
 
@@ -131,7 +213,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
       <div class="h1" style="font-size:22px;" id="home-name">今日训练</div>
     </div>
     <div style="text-align:right;">
-      <div class="lbl">完成进度</div>
+      <div class="lbl">进度</div>
       <div class="arc-wrap" style="margin-top:4px;">
         <svg width="56" height="56" viewBox="0 0 56 56">
           <circle cx="28" cy="28" r="22" fill="none" stroke="var(--line)" stroke-width="4"/>
@@ -142,11 +224,25 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
       </div>
     </div>
   </div>
+
+  <!-- report banner -->
+  <div class="report-banner" id="report-banner" style="display:none;" onclick="go('report')">
+    <div style="font-size:11px;color:rgba(255,255,255,.5);font-family:var(--fm);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">实验报告已发布</div>
+    <div style="font-size:16px;font-weight:500;color:#fff;margin-bottom:3px;">查看你的 4 周成长报告 →</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.5);font-family:var(--fm);">词汇记忆提升 · N值变化 · 个人点评</div>
+  </div>
+
+  <!-- recall notice -->
+  <div class="notice" id="recall-notice" style="display:none;">
+    📌 距上次词汇学习已满 48 小时，记得完成词汇回忆测试！
+    <div style="margin-top:8px;"><button class="btn btn-warn btn-sm" onclick="go('recall')">立即测试 →</button></div>
+  </div>
+
   <div class="card" style="padding:1rem 1.25rem;flex:1;">
     <div class="lbl" style="margin-bottom:.625rem;">今日任务</div>
     <div class="task-item" onclick="go('vocab')">
       <div class="task-icon">📖</div>
-      <div><div class="task-name">词汇预习</div><div class="task-sub">6词 · 美英发音 · 约3分钟</div></div>
+      <div><div class="task-name">词汇预习</div><div class="task-sub" id="home-vocab-sub">今日6词 · 约3分钟</div></div>
       <div class="task-check" id="tc-vocab"></div>
     </div>
     <div class="task-item" onclick="go('nb')">
@@ -173,14 +269,12 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <!-- VOCAB -->
 <div class="scr" id="s-vocab">
   <div class="top">
-    <div class="back" onclick="back()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
-    </div>
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
     <div class="dots" id="vdots"></div>
     <div class="tp-mid" id="vtimer">3:00</div>
   </div>
   <div class="card" style="flex:1;display:flex;flex-direction:column;">
-    <div class="lbl">词汇预习</div>
+    <div class="lbl">词汇预习 · <span id="v-week-label">第1周</span></div>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.625rem;">
       <div>
         <div class="v-big" id="v-en">—</div>
@@ -207,9 +301,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <!-- TUTORIAL -->
 <div class="scr" id="s-tut">
   <div class="top">
-    <div class="back" onclick="back()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
-    </div>
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
     <div class="tp-mid" id="tut-lbl">1 / 3</div>
     <div style="width:44px;"></div>
   </div>
@@ -225,9 +317,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <!-- N-BACK -->
 <div class="scr" id="s-nb">
   <div class="top">
-    <div class="back" onclick="back()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
-    </div>
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
     <div style="display:flex;align-items:center;gap:4px;">
       <div style="width:24px;height:24px;border-radius:50%;background:var(--paper3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;font-weight:500;" id="nb-nbadge">2</div>
       <span style="font-family:var(--fm);font-size:11px;color:var(--ink3);">-back</span>
@@ -272,9 +362,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <!-- DISTRACT -->
 <div class="scr" id="s-di">
   <div class="top">
-    <div class="back" onclick="back()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
-    </div>
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
     <div class="lbl" style="margin-bottom:0;">干扰抑制</div>
     <div class="tp-mid" id="di-timer">4:00</div>
   </div>
@@ -294,9 +382,7 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
 <!-- SWITCH -->
 <div class="scr" id="s-sw">
   <div class="top">
-    <div class="back" onclick="back()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回
-    </div>
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
     <div class="lbl" style="margin-bottom:0;">注意力切换</div>
     <div class="tp-mid" id="sw-timer">3:00</div>
   </div>
@@ -313,13 +399,45 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
   <div id="sw-start" style="text-align:center;"><button class="btn btn-ink" onclick="swStart()">开始训练</button></div>
 </div>
 
+<!-- RECALL TEST -->
+<div class="scr" id="s-recall">
+  <div class="top">
+    <div class="back" onclick="back()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
+    <div class="lbl" style="margin-bottom:0;">词汇回忆测试</div>
+    <div class="tp-mid" id="recall-week">第1周</div>
+  </div>
+  <div style="font-size:13px;color:var(--ink3);margin-bottom:1.25rem;line-height:1.7;font-family:var(--fm);">凭记忆写出每个词的中文释义，不确定可以猜，不会的留空。<br>不要翻查任何记录。</div>
+  <div id="recall-items"></div>
+  <div style="margin-top:.5rem;"><button class="btn btn-ink btn-block" onclick="submitRecall()">提交，查看结果</button></div>
+</div>
+
+<!-- RECALL RESULT -->
+<div class="scr" id="s-recall-result" style="padding-top:2rem;">
+  <div style="text-align:center;margin-bottom:1.5rem;">
+    <div class="done-circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f8f6f1" stroke-width="2.2" stroke-linecap="round"><path d="M5 12l5 5L19 7"/></svg></div>
+    <div class="h1">词汇回忆结果</div>
+    <div style="font-size:13px;color:var(--ink3);margin-top:4px;font-family:var(--fm);" id="recall-score-line"></div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem;">
+    <div class="lbl" style="margin-bottom:.75rem;">逐题反馈</div>
+    <div id="recall-result-list"></div>
+  </div>
+  <div class="card" style="margin-bottom:.875rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+      <div class="lbl" style="margin-bottom:0;">测试打卡</div>
+      <div style="font-size:11px;color:var(--ink3);font-family:var(--fm);">复制发到微信群</div>
+    </div>
+    <div class="checkin-box" id="recall-checkin"></div>
+    <button class="btn btn-ink btn-block" onclick="fbCopy(document.getElementById('recall-checkin').textContent)">一键复制</button>
+  </div>
+  <button class="btn btn-ghost btn-block" onclick="go('home')" style="margin-top:.5rem;">返回主页</button>
+</div>
+
 <!-- DONE -->
 <div class="scr" id="s-done" style="padding-top:2rem;">
   <div style="text-align:center;margin-bottom:1.5rem;">
-    <div class="done-circle">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f8f6f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>
-    </div>
-    <div class="h1">训练完成</div>
+    <div class="done-circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f8f6f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></div>
+    <div class="h1">今日训练完成</div>
     <div style="font-size:13px;color:var(--ink3);margin-top:4px;font-family:var(--fm);">48小时后记得完成词汇回忆测试</div>
   </div>
   <div class="card" style="margin-bottom:.875rem;">
@@ -327,101 +445,478 @@ html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(-
     <div id="done-stats"></div>
   </div>
   <div class="card" style="margin-bottom:.875rem;">
-    <div class="lbl" style="margin-bottom:.75rem;">今日词汇</div>
+    <div class="lbl" style="margin-bottom:.75rem;">今日词汇 · <span id="done-week-label"></span></div>
     <div id="done-words"></div>
   </div>
   <div class="card" style="margin-bottom:.875rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-      <div class="lbl" style="margin-bottom:0;">打卡文字</div>
-      <div style="font-size:11px;color:var(--ink3);font-family:var(--fm);">复制后发到微信群</div>
+      <div class="lbl" style="margin-bottom:0;">训练打卡</div>
+      <div style="font-size:11px;color:var(--ink3);font-family:var(--fm);">复制发到微信群</div>
     </div>
     <div class="checkin-box" id="checkin-box"></div>
-    <button class="btn btn-ink btn-block" onclick="doCopy()">一键复制打卡文字</button>
+    <button class="btn btn-ink btn-block" onclick="fbCopy(document.getElementById('checkin-box').textContent)">一键复制</button>
   </div>
   <button class="btn btn-ghost btn-block" onclick="go('home')" style="margin-top:.5rem;">返回主页</button>
+</div>
+
+<!-- EXPORT DATA (实验结束后用户导出数据给主试) -->
+<div class="scr" id="s-export" style="padding-top:2rem;">
+  <div class="top">
+    <div class="back" onclick="go('home')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
+    <div class="lbl" style="margin-bottom:0;">导出实验数据</div>
+    <div style="width:44px;"></div>
+  </div>
+  <div style="font-size:13px;color:var(--ink3);margin-bottom:1.25rem;line-height:1.7;">实验结束后，将以下数据字符串复制并发送给主试，主试将为你生成个人报告。</div>
+  <div class="card">
+    <div class="lbl" style="margin-bottom:.5rem;">你的实验数据</div>
+    <div class="checkin-box" id="export-string" style="max-height:none;font-size:11px;"></div>
+    <button class="btn btn-ink btn-block" onclick="fbCopy(document.getElementById('export-string').textContent)">复制数据字符串</button>
+  </div>
+  <div style="font-size:12px;color:var(--ink3);text-align:center;margin-top:.5rem;line-height:1.7;">复制后发到微信群 / 私信给主试即可<br>主试收到后会生成你的个人报告链接</div>
+</div>
+
+<!-- REPORT (通过URL参数访问) -->
+<div class="scr" id="s-report" style="padding-bottom:3rem;">
+  <div class="top">
+    <div class="back" onclick="go('home')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>返回</div>
+    <div class="lbl" style="margin-bottom:0;">实验报告</div>
+    <div style="width:44px;"></div>
+  </div>
+  <div id="report-content"></div>
 </div>
 
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-var WORDS=[
-  {en:'ephemeral',zh:'短暂的',us:'efemeral',uk:'efemeral',ex:'The ephemeral nature of fame makes it a poor life goal.'},
-  {en:'tenacious',zh:'顽强的',us:'tenacious',uk:'tenacious',ex:'Her tenacious spirit helped her overcome every obstacle.'},
-  {en:'pragmatic',zh:'务实的',us:'pragmatic',uk:'pragmatic',ex:'A pragmatic approach focuses on what actually works.'},
-  {en:'eloquent',zh:'雄辩的',us:'eloquent',uk:'eloquent',ex:'His eloquent speech moved the entire audience.'},
-  {en:'meticulous',zh:'一丝不苟的',us:'meticulous',uk:'meticulous',ex:'The meticulous editor caught every minor error.'},
-  {en:'resilient',zh:'有韧性的',us:'resilient',uk:'resilient',ex:'Resilient communities recover faster from disasters.'},
+// ═══════════════════
+// CONFIG
+// ═══════════════════
+var ADMIN_PW='lab2024'; // 修改此处设置管理员密码
+var SITE_URL='https://carol2code.github.io/memory-trainer/'; // 修改为你的实际网址
+
+// ═══════════════════
+// 词库
+// ═══════════════════
+var WEEKS=[
+  [{en:'obdurate',zh:'顽固的',us:'ˈɒb.djʊ.rɪt',uk:'ˈɒb.djʊ.rɪt',ex:'He remained obdurate in the face of all criticism.'},{en:'pellucid',zh:'清澈易懂的',us:'pəˈluː.sɪd',uk:'pəˈluː.sɪd',ex:'Her pellucid writing style made complex ideas accessible.'},{en:'garrulous',zh:'话多的',us:'ˈɡær.ə.ləs',uk:'ˈɡær.ə.ləs',ex:'The garrulous host talked throughout the entire dinner.'},{en:'truculent',zh:'好斗的',us:'ˈtrʌk.jʊ.lənt',uk:'ˈtrʌk.jʊ.lənt',ex:'His truculent manner made negotiations impossible.'},{en:'sycophant',zh:'马屁精',us:'ˈsɪk.ə.fænt',uk:'ˈsɪk.ə.fænt',ex:'The manager was surrounded by sycophants.'},{en:'laconic',zh:'言简意赅的',us:'ləˈkɒn.ɪk',uk:'ləˈkɒn.ɪk',ex:'His laconic reply told us all we needed to know.'},{en:'loquacious',zh:'喋喋不休的',us:'ləˈkweɪ.ʃəs',uk:'ləˈkweɪ.ʃəs',ex:'She became more loquacious after a glass of wine.'},{en:'mendacious',zh:'说谎的',us:'menˈdeɪ.ʃəs',uk:'menˈdeɪ.ʃəs',ex:'The mendacious politician lost public trust.'},{en:'recondite',zh:'艰深晦涩的',us:'ˈrek.ən.daɪt',uk:'ˈrek.ən.daɪt',ex:'The professor specialized in recondite medieval texts.'},{en:'pusillanimous',zh:'胆怯的',us:'ˌpjuː.sɪˈlæn.ɪ.məs',uk:'ˌpjuː.sɪˈlæn.ɪ.məs',ex:'The pusillanimous response disappointed his allies.'},{en:'obstreperous',zh:'喧闹的',us:'əbˈstrep.ər.əs',uk:'əbˈstrep.ər.əs',ex:'The obstreperous crowd had to be calmed down.'},{en:'perfidious',zh:'背信弃义的',us:'pəˈfɪd.i.əs',uk:'pəˈfɪd.i.əs',ex:'The perfidious ally betrayed them at the worst moment.'},{en:'sanguine',zh:'乐观的',us:'ˈsæŋ.ɡwɪn',uk:'ˈsæŋ.ɡwɪn',ex:'She remained sanguine despite the setbacks.'},{en:'vituperative',zh:'谩骂的',us:'vɪˈtjuː.pər.ə.tɪv',uk:'vɪˈtjuː.pər.ə.tɪv',ex:'His vituperative speech shocked the audience.'},{en:'ignominious',zh:'可耻的',us:'ˌɪɡ.nəˈmɪn.i.əs',uk:'ˌɪɡ.nəˈmɪn.i.əs',ex:'The team suffered an ignominious defeat.'},{en:'querulous',zh:'爱抱怨的',us:'ˈkwer.ʊ.ləs',uk:'ˈkwer.ʊ.ləs',ex:'The querulous patient complained about everything.'},{en:'perspicacious',zh:'敏锐的',us:'ˌpɜː.spɪˈkeɪ.ʃəs',uk:'ˌpɜː.spɪˈkeɪ.ʃəs',ex:'The perspicacious analyst spotted the trend early.'},{en:'impecunious',zh:'贫穷的',us:'ˌɪm.pɪˈkjuː.ni.əs',uk:'ˌɪm.pɪˈkjuː.ni.əs',ex:'The impecunious student survived on instant noodles.'},{en:'limpid',zh:'清澈的',us:'ˈlɪm.pɪd',uk:'ˈlɪm.pɪd',ex:'The limpid stream reflected the mountain above.'},{en:'supercilious',zh:'傲慢的',us:'ˌsuː.pəˈsɪl.i.əs',uk:'ˌsuː.pəˈsɪl.i.əs',ex:'His supercilious attitude alienated his colleagues.'}],
+  [{en:'acrimonious',zh:'充满怨恨的',us:'ˌæk.rɪˈmoʊ.ni.əs',uk:'ˌæk.rɪˈməʊ.ni.əs',ex:'The divorce proceedings became acrimonious.'},{en:'alacrity',zh:'欣然愿意',us:'əˈlæk.rɪ.ti',uk:'əˈlæk.rɪ.ti',ex:'She accepted the challenge with alacrity.'},{en:'ambivalent',zh:'矛盾的',us:'æmˈbɪv.ə.lənt',uk:'æmˈbɪv.ə.lənt',ex:'He felt ambivalent about leaving his hometown.'},{en:'anachronistic',zh:'时代错误的',us:'əˌnæk.rəˈnɪs.tɪk',uk:'əˌnæk.rəˈnɪs.tɪk',ex:'The anachronistic law was finally repealed.'},{en:'anodyne',zh:'无害的',us:'ˈæn.ə.daɪn',uk:'ˈæn.ə.daɪn',ex:'His anodyne comments offended no one.'},{en:'apocryphal',zh:'来源可疑的',us:'əˈpɒk.rɪ.fəl',uk:'əˈpɒk.rɪ.fəl',ex:'The story, though entertaining, is probably apocryphal.'},{en:'approbation',zh:'认可',us:'ˌæp.rəˈbeɪ.ʃən',uk:'ˌæp.rəˈbeɪ.ʃən',ex:"The plan received the committee's approbation."},{en:'arcane',zh:'神秘的',us:'ɑːrˈkeɪn',uk:'ɑːˈkeɪn',ex:'The ritual involved arcane symbols.'},{en:'arduous',zh:'费力的',us:'ˈɑːr.dju.əs',uk:'ˈɑː.dju.əs',ex:'The arduous climb took twelve hours.'},{en:'banal',zh:'陈腐的',us:'bəˈnɑːl',uk:'bəˈnɑːl',ex:'The speech was filled with banal platitudes.'},{en:'beguile',zh:'迷惑',us:'bɪˈɡaɪl',uk:'bɪˈɡaɪl',ex:'She was beguiled by his charm.'},{en:'belabor',zh:'过分强调',us:'bɪˈleɪ.bər',uk:'bɪˈleɪ.bə',ex:'There is no need to belabor the point.'},{en:'belie',zh:'掩盖',us:'bɪˈlaɪ',uk:'bɪˈlaɪ',ex:'Her calm exterior belied her anxiety.'},{en:'bellicose',zh:'好战的',us:'ˈbel.ɪ.koʊs',uk:'ˈbel.ɪ.kəʊs',ex:'The bellicose rhetoric alarmed diplomats.'},{en:'benevolent',zh:'仁慈的',us:'bəˈnev.ə.lənt',uk:'bəˈnev.ə.lənt',ex:'The benevolent founder donated to many charities.'},{en:'bolster',zh:'支撑',us:'ˈboʊl.stər',uk:'ˈbəʊl.stə',ex:'The data bolstered his argument.'},{en:'boor',zh:'粗鲁的人',us:'bʊr',uk:'bʊə',ex:'The boor ignored basic table manners.'},{en:'burgeon',zh:'迅速成长',us:'ˈbɜːr.dʒən',uk:'ˈbɜː.dʒən',ex:'The startup began to burgeon after funding.'},{en:'cacophony',zh:'刺耳的声音',us:'kəˈkɒf.ə.ni',uk:'kəˈkɒf.ə.ni',ex:'The construction created a cacophony outside.'},{en:'calumny',zh:'诽谤',us:'ˈkæl.əm.ni',uk:'ˈkæl.əm.ni',ex:'The politician suffered calumny from the press.'}],
+  [{en:'canonical',zh:'权威的',us:'kəˈnɒn.ɪ.kəl',uk:'kəˈnɒn.ɪ.kəl',ex:'This is the canonical text in the field.'},{en:'capricious',zh:'反复无常的',us:'kəˈprɪʃ.əs',uk:'kəˈprɪʃ.əs',ex:'The capricious weather ruined their plans.'},{en:'castigation',zh:'严厉批评',us:'ˌkæs.tɪˈɡeɪ.ʃən',uk:'ˌkæs.tɪˈɡeɪ.ʃən',ex:'The castigation was harsh but deserved.'},{en:'caustic',zh:'尖刻的',us:'ˈkɔː.stɪk',uk:'ˈkɒs.tɪk',ex:'Her caustic wit could wound even friends.'},{en:'chicanery',zh:'欺骗手段',us:'ʃɪˈkeɪ.nər.i',uk:'ʃɪˈkeɪ.nər.i',ex:'Legal chicanery delayed the verdict for years.'},{en:'circumspect',zh:'谨慎的',us:'ˈsɜːr.kəm.spekt',uk:'ˈsɜː.kəm.spekt',ex:'Be circumspect about signing any contract.'},{en:'clamor',zh:'强烈要求',us:'ˈklæm.ər',uk:'ˈklæm.ə',ex:'There was a public clamor for reform.'},{en:'clandestine',zh:'秘密的',us:'klænˈdes.tɪn',uk:'klænˈdes.tɪn',ex:'They conducted clandestine meetings.'},{en:'coalesce',zh:'合并',us:'ˌkoʊ.əˈles',uk:'ˌkəʊ.əˈles',ex:'The factions coalesced into a single party.'},{en:'cogent',zh:'有说服力的',us:'ˈkoʊ.dʒənt',uk:'ˈkəʊ.dʒənt',ex:'She made a cogent case for the proposal.'},{en:'commensurate',zh:'相称的',us:'kəˈmen.sər.ɪt',uk:'kəˈmen.sər.ɪt',ex:'Salary should be commensurate with experience.'},{en:'compunction',zh:'内疚',us:'kəmˈpʌŋk.ʃən',uk:'kəmˈpʌŋk.ʃən',ex:'He felt no compunction about lying.'},{en:'concomitant',zh:'伴随的',us:'kənˈkɒm.ɪ.tənt',uk:'kənˈkɒm.ɪ.tənt',ex:'Success brought concomitant responsibilities.'},{en:'condone',zh:'纵容',us:'kənˈdoʊn',uk:'kənˈdəʊn',ex:'We cannot condone such behavior.'},{en:'confound',zh:'使困惑',us:'kənˈfaʊnd',uk:'kənˈfaʊnd',ex:'The magician confounded the audience.'},{en:'contentious',zh:'有争议的',us:'kənˈten.ʃəs',uk:'kənˈten.ʃəs',ex:'The topic remains highly contentious.'},{en:'contrite',zh:'悔恨的',us:'ˈkɒn.traɪt',uk:'ˈkɒn.traɪt',ex:'She appeared genuinely contrite for her actions.'},{en:'convoluted',zh:'复杂的',us:'ˈkɒn.və.luː.tɪd',uk:'ˈkɒn.və.luː.tɪd',ex:'The convoluted plot confused many viewers.'},{en:'copious',zh:'大量的',us:'ˈkoʊ.pi.əs',uk:'ˈkəʊ.pi.əs',ex:'She took copious notes during the lecture.'},{en:'corroborate',zh:'证实',us:'kəˈrɒb.ə.reɪt',uk:'kəˈrɒb.ə.reɪt',ex:'The witness corroborated his account.'}],
+  [{en:'credulous',zh:'轻信的',us:'ˈkred.jʊ.ləs',uk:'ˈkred.jʊ.ləs',ex:'The credulous child believed every story.'},{en:'culpable',zh:'有罪的',us:'ˈkʌl.pə.bəl',uk:'ˈkʌl.pə.bəl',ex:'He was found culpable for the accident.'},{en:'cursory',zh:'粗略的',us:'ˈkɜːr.sər.i',uk:'ˈkɜː.sər.i',ex:'She gave the report a cursory glance.'},{en:'daunt',zh:'使胆怯',us:'dɔːnt',uk:'dɔːnt',ex:'The scale of the task daunted him.'},{en:'debunk',zh:'揭穿',us:'dɪˈbʌŋk',uk:'dɪˈbʌŋk',ex:'The article debunked several popular myths.'},{en:'deferential',zh:'恭敬的',us:'ˌdef.əˈren.ʃəl',uk:'ˌdef.əˈren.ʃəl',ex:'He was deferential toward his elders.'},{en:'deleterious',zh:'有害的',us:'ˌdel.ɪˈtɪər.i.əs',uk:'ˌdel.ɪˈtɪər.i.əs',ex:'Smoking has deleterious effects on health.'},{en:'denigrate',zh:'诋毁',us:'ˈden.ɪ.ɡreɪt',uk:'ˈden.ɪ.ɡreɪt',ex:'He denigrated his rivals at every turn.'},{en:'derivative',zh:'缺乏创意的',us:'dɪˈrɪv.ə.tɪv',uk:'dɪˈrɪv.ə.tɪv',ex:'Critics called the film derivative and dull.'},{en:'desultory',zh:'散漫的',us:'ˈdes.əl.tɔːr.i',uk:'ˈdes.əl.tri',ex:'The conversation was desultory at best.'},{en:'didactic',zh:'说教的',us:'daɪˈdæk.tɪk',uk:'dɪˈdæk.tɪk',ex:'His didactic tone annoyed the students.'},{en:'dilettante',zh:'业余爱好者',us:'ˌdɪl.ɪˈtænt',uk:'ˈdɪl.ɪ.tænt',ex:'He was a dilettante in art, not a scholar.'},{en:'dirge',zh:'挽歌',us:'dɜːrdʒ',uk:'dɜːdʒ',ex:'The funeral march sounded like a dirge.'},{en:'discursive',zh:'东拉西扯的',us:'dɪˈskɜːr.sɪv',uk:'dɪˈskɜː.sɪv',ex:'His discursive essay lacked a clear thesis.'},{en:'disingenuous',zh:'不诚实的',us:'ˌdɪs.ɪnˈdʒen.ju.əs',uk:'ˌdɪs.ɪnˈdʒen.ju.əs',ex:'The apology seemed disingenuous.'},{en:'disparate',zh:'迥然不同的',us:'ˈdɪs.pər.ɪt',uk:'ˈdɪs.pər.ɪt',ex:'The group had disparate backgrounds.'},{en:'dispassionate',zh:'冷静客观的',us:'dɪˈspæʃ.ən.ɪt',uk:'dɪˈspæʃ.ən.ɪt',ex:'We need a dispassionate assessment.'},{en:'dissemble',zh:'掩饰',us:'dɪˈsem.bəl',uk:'dɪˈsem.bəl',ex:'He dissembled his true intentions.'},{en:'dissonance',zh:'不和谐',us:'ˈdɪs.ə.nəns',uk:'ˈdɪs.ə.nəns',ex:'There was a dissonance between word and action.'},{en:'dogmatic',zh:'武断的',us:'dɒɡˈmæt.ɪk',uk:'dɒɡˈmæt.ɪk',ex:'His dogmatic views left no room for debate.'}],
 ];
-var IPA=[
-  {us:'ɪˈfem.ər.əl',uk:'ɪˈfem.ər.əl'},
-  {us:'təˈneɪ.ʃəs',uk:'təˈneɪ.ʃəs'},
-  {us:'præɡˈmæt.ɪk',uk:'præɡˈmæt.ɪk'},
-  {us:'ˈel.ə.kwənt',uk:'ˈel.ə.kwənt'},
-  {us:'məˈtɪk.jə.ləs',uk:'məˈtɪk.jʊ.ləs'},
-  {us:'rɪˈzɪl.i.ənt',uk:'rɪˈzɪl.i.ənt'},
+
+var TEST_WEEKS=[
+  [{en:'ephemeral',zh:'短暂的',accept:['短暂','短暂的','转瞬即逝','昙花一现']},{en:'tenacious',zh:'顽强的',accept:['顽强','顽强的','坚持不懈','执着','坚韧']},{en:'pragmatic',zh:'务实的',accept:['务实','务实的','实用','实际']},{en:'eloquent',zh:'雄辩的',accept:['雄辩','雄辩的','口才好','能言善道']},{en:'meticulous',zh:'一丝不苟的',accept:['一丝不苟','细致','仔细','认真']},{en:'resilient',zh:'有韧性的',accept:['韧性','有韧性','弹性','坚韧']},{en:'laconic',zh:'言简意赅的',accept:['言简意赅','简洁','话少','简短']},{en:'sanguine',zh:'乐观的',accept:['乐观','乐观的','积极','充满希望']}],
+  [{en:'obdurate',zh:'顽固的',accept:['顽固','顽固的','固执','不听劝']},{en:'garrulous',zh:'话多的',accept:['话多','话多的','喋喋不休','饶舌']},{en:'querulous',zh:'爱抱怨的',accept:['爱抱怨','抱怨','牢骚']},{en:'perspicacious',zh:'敏锐的',accept:['敏锐','敏锐的','洞察力强']},{en:'mendacious',zh:'说谎的',accept:['说谎','说谎的','不诚实','撒谎']},{en:'limpid',zh:'清澈的',accept:['清澈','清澈的','清晰']},{en:'sycophant',zh:'马屁精',accept:['马屁精','阿谀奉承','谄媚']},{en:'supercilious',zh:'傲慢的',accept:['傲慢','傲慢的','自大','轻蔑']}],
+  [{en:'acrimonious',zh:'充满怨恨的',accept:['怨恨','充满怨恨','尖刻','激烈']},{en:'alacrity',zh:'欣然愿意',accept:['欣然','愿意','积极','热情']},{en:'banal',zh:'陈腐的',accept:['陈腐','陈腐的','平庸','老套']},{en:'bellicose',zh:'好战的',accept:['好战','好战的','好斗','挑衅']},{en:'bolster',zh:'支撑',accept:['支撑','支持','巩固','加强']},{en:'burgeon',zh:'迅速成长',accept:['迅速成长','快速发展','蓬勃发展']},{en:'arcane',zh:'神秘的',accept:['神秘','神秘的','深奥','晦涩']},{en:'belie',zh:'掩盖',accept:['掩盖','与…不符','不符','掩饰']}],
+  [{en:'canonical',zh:'权威的',accept:['权威','权威的','标准','正典']},{en:'cogent',zh:'有说服力的',accept:['有说服力','说服力强','充分','有力']},{en:'coalesce',zh:'合并',accept:['合并','融合','联合','聚合']},{en:'clandestine',zh:'秘密的',accept:['秘密','秘密的','隐秘','暗中']},{en:'convoluted',zh:'复杂的',accept:['复杂','复杂的','繁琐','迂回']},{en:'contentious',zh:'有争议的',accept:['有争议','争议','爱争论']},{en:'contrite',zh:'悔恨的',accept:['悔恨','悔恨的','内疚','懊悔']},{en:'copious',zh:'大量的',accept:['大量','大量的','丰富','充裕']}],
 ];
-var DI_SETS=[
-  {t:'ephemeral',zh:'短暂的',d:['temporary','fleeting','transient','transitory']},
-  {t:'tenacious',zh:'顽强的',d:['stubborn','persistent','resolute','steadfast']},
-  {t:'pragmatic',zh:'务实的',d:['practical','realistic','sensible','utilitarian']},
-  {t:'eloquent',zh:'雄辩的',d:['articulate','fluent','expressive','persuasive']},
-  {t:'meticulous',zh:'一丝不苟的',d:['careful','precise','thorough','scrupulous']},
-  {t:'resilient',zh:'有韧性的',d:['tough','robust','sturdy','durable']},
-];
+
 var SW_RULES=[
   {label:'词性：名词 or 动词？',gen:function(){var ns=['freedom','memory','logic','theory','system'],vs=['analyze','persist','enhance','recall','adapt'],isN=Math.random()>.5,w=isN?ns[~~(Math.random()*ns.length)]:vs[~~(Math.random()*vs.length)];return{s:w,a:isN?'名词':'动词',c:['名词','动词']};}},
-  {label:'语义：正面 or 负面？',gen:function(){var p=['resilient','eloquent','lucid','tenacious','pragmatic'],n=['dormant','vehement','erratic','garrulous','querulous'],isP=Math.random()>.5,w=isP?p[~~(Math.random()*p.length)]:n[~~(Math.random()*n.length)];return{s:w,a:isP?'正面':'负面',c:['正面','负面']};}},
+  {label:'语义：正面 or 负面？',gen:function(){var p=['resilient','eloquent','lucid','tenacious','cogent'],n=['truculent','vituperative','mendacious','bellicose','dogmatic'],isP=Math.random()>.5,w=isP?p[~~(Math.random()*p.length)]:n[~~(Math.random()*n.length)];return{s:w,a:isP?'正面':'负面',c:['正面','负面']};}},
 ];
-var S={name:'',gid:'',day:1,done:{vocab:false,nb:false,di:false,sw:false},nbN:2,nbC:0,nbT:0,diC:0,diT:0,swC:0,swT:0,swRts:[],startTs:0,timers:{}};
+
+// ═══════════════════
+// STATE
+// ═══════════════════
+var S={name:'',gid:'',day:1,done:{vocab:false,nb:false,di:false,sw:false},nbN:2,nbC:0,nbT:0,diC:0,diT:0,swC:0,swT:0,swRts:[],startTs:0,timers:{},vocabLearnedTs:0,recallDone:false,recallScores:[]};
+
+function getWeekIdx(){return Math.min(Math.floor((S.day-1)/7),3);}
+function getDayWords(){var wk=WEEKS[getWeekIdx()],offset=((S.day-1)%7)*3,idx=[];for(var i=0;i<6;i++)idx.push((offset+i)%wk.length);return idx.map(function(i){return wk[i];});}
+function getTestWords(){return TEST_WEEKS[getWeekIdx()];}
+
+// ═══════════════════
+// UTILS
+// ═══════════════════
 function $$(i){return document.getElementById(i);}
 function show(i){$$(i).style.display='';}
 function hide(i){$$(i).style.display='none';}
 function setScr(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});$$(id).classList.add('on');window.scrollTo(0,0);}
-function toast(msg,dur){var t=$$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2000);}
+function toast(msg,dur){var t=$$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},dur||2200);}
 function pad(n){return n<10?'0'+n:n;}
 function countdown(elId,secs,cb){clearInterval(S.timers[elId]);var s=secs;function tick(){var el=$$(elId);if(el)el.textContent=Math.floor(s/60)+':'+pad(s%60);if(s<=0){clearInterval(S.timers[elId]);if(cb)cb();}s--;}tick();S.timers[elId]=setInterval(tick,1000);}
 function stopTimers(){Object.keys(S.timers).forEach(function(k){clearInterval(S.timers[k]);});}
-var vIdx=0;
-function spk(acc){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(WORDS[vIdx].en);u.lang=acc===1?'en-GB':'en-US';u.rate=0.82;window.speechSynthesis.speak(u);}
-function doLogin(){var name=($$('inp-name').value||'').trim(),gid=($$('inp-gid').value||'').trim();if(!name){toast('请填写昵称');return;}if(!gid){toast('请填写实验组 ID');return;}S.name=name;S.gid=gid;S.startTs=Date.now();try{var saved=localStorage.getItem('wm:'+gid+':'+name);if(saved){var d=JSON.parse(saved);S.day=d.day||1;S.nbN=d.nbN||2;}}catch(e){}go('home');}
+function saveLocal(){try{localStorage.setItem('wm:'+S.gid+':'+S.name,JSON.stringify({day:S.day,nbN:S.nbN,vocabLearnedTs:S.vocabLearnedTs,recallDone:S.recallDone,recallScores:S.recallScores}));}catch(e){}}
+function loadLocal(){try{var d=JSON.parse(localStorage.getItem('wm:'+S.gid+':'+S.name)||'{}');if(d.day)S.day=d.day;if(d.nbN)S.nbN=d.nbN;if(d.vocabLearnedTs)S.vocabLearnedTs=d.vocabLearnedTs;if(d.recallDone)S.recallDone=d.recallDone;if(d.recallScores)S.recallScores=d.recallScores;}catch(e){}}
+
+// ═══════════════════
+// EXPORT / IMPORT DATA
+// 用户数据 → base64字符串 → 用户发给主试 → 主试解析
+// ═══════════════════
+function buildExportString(){
+  var data={
+    v:1, // version
+    name:S.name,
+    gid:S.gid,
+    day:S.day,
+    nbN:S.nbN,
+    recallScores:S.recallScores, // [{week,score,total,pct}]
+    ts:Date.now()
+  };
+  return btoa(encodeURIComponent(JSON.stringify(data)));
+}
+
+function parseExportString(str){
+  try{
+    return JSON.parse(decodeURIComponent(atob(str.trim())));
+  }catch(e){return null;}
+}
+
+function buildReportURL(userData, scores){
+  // 把报告数据编码进URL参数
+  var rptData={
+    name:userData.name,
+    gid:userData.gid,
+    days:userData.day,
+    finalN:scores.finalN||userData.nbN,
+    baseline:scores.baseline||0,
+    w1:scores.w1||0,
+    w2:scores.w2||0,
+    w3:scores.w3||0,
+    w4:scores.w4||0,
+  };
+  return SITE_URL+'?rpt='+btoa(encodeURIComponent(JSON.stringify(rptData)));
+}
+
+// ═══════════════════
+// LOGIN
+// ═══════════════════
+var vIdx=0,todayWords=[];
+function spk(acc){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(todayWords[vIdx].en);u.lang=acc===1?'en-GB':'en-US';u.rate=0.82;window.speechSynthesis.speak(u);}
+
+// check URL for report param on page load
+window.addEventListener('load',function(){
+  var params=new URLSearchParams(window.location.search);
+  var rpt=params.get('rpt');
+  if(rpt){
+    try{
+      var data=JSON.parse(decodeURIComponent(atob(rpt)));
+      renderReport(data);
+      return;
+    }catch(e){}
+  }
+  // normal login flow
+});
+
+function doLogin(){
+  var name=($$('inp-name').value||'').trim(),gid=($$('inp-gid').value||'').trim();
+  if(!name){toast('请填写昵称');return;}if(!gid){toast('请填写实验组 ID');return;}
+  S.name=name;S.gid=gid;S.startTs=Date.now();loadLocal();todayWords=getDayWords();go('home');
+}
 $$('inp-gid').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-var prevScr='s-home';
-function go(id){stopTimers();prevScr=document.querySelector('.scr.on')?.id||'s-home';if(id==='home'){setScr('s-home');updateHome();return;}if(id==='vocab'){startVocab();return;}if(id==='tut'){startTut();return;}if(id==='nb'){setScr('s-nb');return;}if(id==='di'){setScr('s-di');return;}if(id==='sw'){setScr('s-sw');return;}}
+$$('inp-admin-pw').addEventListener('keydown',function(e){if(e.key==='Enter')doAdminLogin();});
+
+function doAdminLogin(){
+  var pw=($$('inp-admin-pw').value||'').trim();
+  if(pw!==ADMIN_PW){toast('密码错误');return;}
+  loadAdminUsers();setScr('s-admin');renderAdmin();
+}
+
+// ═══════════════════
+// ADMIN
+// ═══════════════════
+var adminUsers=[];
+function loadAdminUsers(){try{adminUsers=JSON.parse(localStorage.getItem('admin-users')||'[]');}catch(e){adminUsers=[];}}
+function saveAdminUsers(){try{localStorage.setItem('admin-users',JSON.stringify(adminUsers));}catch(e){}}
+
+function importUserData(){
+  var str=($$('adm-paste').value||'').trim();
+  if(!str){toast('请先粘贴数据字符串');return;}
+  var data=parseExportString(str);
+  if(!data){toast('数据格式错误，请检查');return;}
+  // check duplicate
+  var exists=adminUsers.some(function(u){return u.name===data.name&&u.gid===data.gid;});
+  if(exists){toast(data.name+' 已存在，请直接编辑分数');return;}
+  adminUsers.push({
+    name:data.name,gid:data.gid,
+    day:data.day,finalN:data.nbN,
+    scores:{baseline:0,w1:0,w2:0,w3:0,w4:0},
+    recallScores:data.recallScores||[],
+  });
+  saveAdminUsers();$$('adm-paste').value='';renderAdmin();
+  toast('已添加 '+data.name+'，请填入测试分数后生成报告',3000);
+}
+
+function addAdminUser(){
+  var name=prompt('用户昵称（与登录时一致）：');if(!name||!name.trim())return;
+  var gid=prompt('实验组 ID（如 GRE01）：');if(!gid||!gid.trim())return;
+  adminUsers.push({name:name.trim(),gid:gid.trim(),day:28,finalN:2,scores:{baseline:0,w1:0,w2:0,w3:0,w4:0},recallScores:[]});
+  saveAdminUsers();renderAdmin();
+}
+
+function renderAdmin(){
+  if(!adminUsers.length){$$('admin-users').innerHTML='<div style="font-size:13px;color:var(--ink3);text-align:center;padding:1.5rem 0;">还没有用户数据<br>让用户导出数据后粘贴到上方</div>';return;}
+  var html='';
+  adminUsers.forEach(function(u,i){
+    // show recall scores from user if available
+    var recallInfo='';
+    if(u.recallScores&&u.recallScores.length){
+      recallInfo='<div style="font-size:11px;color:var(--ink3);font-family:var(--fm);margin-bottom:6px;">用户自测记录：'+u.recallScores.map(function(r){return '第'+r.week+'周 '+r.pct+'%';}).join(' / ')+'</div>';
+    }
+    html+='<div class="adm-user-row">'
+      +'<div class="adm-user-name">'+u.name+' <span style="font-family:var(--fm);font-size:11px;color:var(--ink3);">'+u.gid+' · Day '+u.day+'</span></div>'
+      +recallInfo
+      +'<div style="font-size:12px;color:var(--ink3);margin-bottom:6px;">录入各周词汇测试得分（0–100）</div>'
+      +'<div class="adm-score-row">'
+      +['基线','第1周','第2周','第3周','第4周'].map(function(lbl,si){
+        var key=['baseline','w1','w2','w3','w4'][si];
+        return '<div><div class="adm-score-label">'+lbl+'</div><input class="adm-score-inp" type="number" min="0" max="100" value="'+(u.scores[key]||0)+'" onchange="admSetScore('+i+',\''+key+'\',this.value)"></div>';
+      }).join('')+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">'
+      +'<div><div class="adm-score-label">最终N值</div><input class="adm-score-inp" type="number" min="1" max="5" value="'+(u.finalN||2)+'" onchange="admSetN('+i+',this.value)"></div>'
+      +'<div><div class="adm-score-label">训练天数</div><input class="adm-score-inp" type="number" min="0" max="28" value="'+(u.day||0)+'" onchange="admSetDays('+i+',this.value)"></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;">'
+      +'<button class="btn btn-green btn-sm" style="flex:1;" onclick="genReportLink('+i+')">生成报告链接</button>'
+      +'<button class="btn btn-ghost btn-sm" onclick="removeUser('+i+')">删除</button>'
+      +'</div>'
+      +'</div>';
+  });
+  $$('admin-users').innerHTML=html;
+}
+
+function admSetScore(i,key,val){adminUsers[i].scores[key]=parseInt(val)||0;saveAdminUsers();}
+function admSetN(i,val){adminUsers[i].finalN=parseInt(val)||2;saveAdminUsers();}
+function admSetDays(i,val){adminUsers[i].day=parseInt(val)||0;saveAdminUsers();}
+function removeUser(i){if(!confirm('确认删除？'))return;adminUsers.splice(i,1);saveAdminUsers();renderAdmin();}
+
+function genReportLink(i){
+  var u=adminUsers[i];
+  var url=buildReportURL(u,u.scores);
+  // show in prompt so admin can copy
+  var msg='报告链接已生成，请复制后发给用户：\n\n'+url+'\n\n（或点击确定自动复制）';
+  if(confirm(msg)){
+    fbCopy(url);
+    toast('链接已复制，发给 '+u.name+' 即可',3000);
+  }
+}
+
+// ═══════════════════
+// NAV
+// ═══════════════════
+function go(id){
+  stopTimers();
+  if(id==='login'){setScr('s-login');return;}
+  if(id==='admin-login'){setScr('s-admin-login');return;}
+  if(id==='admin'){loadAdminUsers();setScr('s-admin');renderAdmin();return;}
+  if(id==='home'){setScr('s-home');updateHome();return;}
+  if(id==='vocab'){startVocab();return;}
+  if(id==='tut'){startTut();return;}
+  if(id==='nb'){setScr('s-nb');return;}
+  if(id==='di'){setScr('s-di');return;}
+  if(id==='sw'){setScr('s-sw');return;}
+  if(id==='recall'){startRecall();return;}
+  if(id==='export'){showExport();return;}
+  if(id==='report'){go('home');return;}
+}
 function back(){stopTimers();setScr('s-home');updateHome();}
-function updateHome(){$$('home-name').textContent=S.name;$$('home-day').textContent='第 '+S.day+' 天  ·  '+S.gid+' 组';var done=Object.values(S.done).filter(Boolean).length;$$('arc').style.strokeDashoffset=138.2*(1-done/4);$$('arc-lbl').textContent=done+'/4';['vocab','nb','di','sw'].forEach(function(t){var el=$$('tc-'+t);if(S.done[t]){el.className='task-check done';el.innerHTML='<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#f8f6f1" stroke-width="2" stroke-linecap="round"><path d="M2 5l2 2.5L8 3"/></svg>';}else{el.className='task-check';el.innerHTML='';}});if(done===4){setTimeout(function(){setScr('s-done');fillDone();},600);}}
-function startVocab(){vIdx=0;setScr('s-vocab');countdown('vtimer',180,function(){S.done.vocab=true;saveLocal();back();});renderVocab();}
-function renderVocab(){var w=WORDS[vIdx],ipa=IPA[vIdx];$$('v-en').textContent=w.en;$$('v-zh').textContent=w.zh;$$('v-ipa').innerHTML='<div class="ipa-item"><span class="ipa-flag">美</span><span class="ipa-text">/'+ipa.us+'/</span></div><div class="ipa-item"><span class="ipa-flag">英</span><span class="ipa-text">/'+ipa.uk+'/</span></div>';$$('v-ex').textContent='"'+w.ex+'"';var dots='';for(var i=0;i<WORDS.length;i++)dots+='<div class="dot'+(i<vIdx?' dn':i===vIdx?' act':'')+'"></div>';$$('vdots').innerHTML=dots;$$('v-prev').style.visibility=vIdx===0?'hidden':'visible';$$('v-next').textContent=vIdx===WORDS.length-1?'完成 ✓':'下一个';setTimeout(function(){spk(0);},200);}
-function vNav(d){if(d>0&&vIdx===WORDS.length-1){clearInterval(S.timers['vtimer']);S.done.vocab=true;saveLocal();back();return;}vIdx=Math.max(0,Math.min(WORDS.length-1,vIdx+d));renderVocab();}
+
+// ═══════════════════
+// HOME
+// ═══════════════════
+function updateHome(){
+  todayWords=getDayWords();
+  var wkLabels=['第1周','第2周','第3周','第4周'],wkLabel=wkLabels[getWeekIdx()];
+  $$('home-name').textContent=S.name;
+  $$('home-day').textContent='第 '+S.day+' 天  ·  '+S.gid+'组  ·  '+wkLabel;
+  $$('home-vocab-sub').textContent='今日6词 · '+wkLabel+' · 约3分钟';
+  var done=Object.values(S.done).filter(Boolean).length;
+  $$('arc').style.strokeDashoffset=138.2*(1-done/4);$$('arc-lbl').textContent=done+'/4';
+  ['vocab','nb','di','sw'].forEach(function(t){var el=$$('tc-'+t);if(S.done[t]){el.className='task-check done';el.innerHTML='<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#f8f6f1" stroke-width="2" stroke-linecap="round"><path d="M2 5l2 2.5L8 3"/></svg>';}else{el.className='task-check';el.innerHTML='';}});
+  var now=Date.now();
+  $$('recall-notice').style.display=(S.vocabLearnedTs>0&&(now-S.vocabLearnedTs)>=48*60*60*1000&&!S.recallDone)?'':'none';
+  // show export button after day 7
+  var exportBtn=$$('export-btn');
+  if(!exportBtn&&S.day>=7){
+    var btn=document.createElement('button');
+    btn.className='btn btn-ghost btn-sm';btn.id='export-btn';
+    btn.style.cssText='width:100%;margin-top:.5rem;';
+    btn.textContent='📤 导出实验数据（发给主试获取报告）';
+    btn.onclick=function(){go('export');};
+    $$('s-home').appendChild(btn);
+  }
+  if(done===4){setTimeout(function(){setScr('s-done');fillDone();},600);}
+}
+
+// ═══════════════════
+// VOCAB
+// ═══════════════════
+function startVocab(){
+  vIdx=0;setScr('s-vocab');
+  var wkLabels=['第1周','第2周','第3周','第4周'];$$('v-week-label').textContent=wkLabels[getWeekIdx()];
+  countdown('vtimer',180,finishVocab);renderVocab();
+}
+function renderVocab(){
+  var w=todayWords[vIdx];
+  $$('v-en').textContent=w.en;$$('v-zh').textContent=w.zh;
+  $$('v-ipa').innerHTML='<div class="ipa-item"><span class="ipa-flag">美</span><span class="ipa-text">/'+w.us+'/</span></div><div class="ipa-item"><span class="ipa-flag">英</span><span class="ipa-text">/'+w.uk+'/</span></div>';
+  $$('v-ex').textContent='"'+w.ex+'"';
+  var dots='';for(var i=0;i<todayWords.length;i++)dots+='<div class="dot'+(i<vIdx?' dn':i===vIdx?' act':'')+'"></div>';$$('vdots').innerHTML=dots;
+  $$('v-prev').style.visibility=vIdx===0?'hidden':'visible';
+  $$('v-next').textContent=vIdx===todayWords.length-1?'完成 ✓':'下一个';
+  setTimeout(function(){spk(0);},200);
+}
+function vNav(d){if(d>0&&vIdx===todayWords.length-1){finishVocab();return;}vIdx=Math.max(0,Math.min(todayWords.length-1,vIdx+d));renderVocab();}
+function finishVocab(){clearInterval(S.timers['vtimer']);S.done.vocab=true;S.vocabLearnedTs=Date.now();S.recallDone=false;saveLocal();back();}
+
+// ═══════════════════
+// TUTORIAL
+// ═══════════════════
 var tutStep=0;
 var TUTS=[
-  {title:'"N步前"是什么意思？',body:function(){return '<div class="tut-box">单词像传送带一个接一个出现。<b>2-back</b> = 把当前这个，和往回数 2 格的那个比较——不是和"上一个"比。</div><div class="tut-seq"><div class="tut-tok">ephemeral</div><div class="tut-tok">pragmatic</div><div class="tut-tok hi">tenacious</div><div class="tut-tok">pragmatic</div><div class="tut-tok cur">tenacious ← 当前</div></div><div class="tut-box acc">当前 = <b>tenacious</b>，往回 2 格 = <b>tenacious</b>（蓝色）<br>→ 匹配！回答"词义匹配"</div>';}},
-  {title:'同时追踪两条信息',body:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">▦</div><b>格子位置</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一格？</div></div><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">文</div><b>单词释义</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一词？</div></div></div><div class="tut-box acc"><b>四种回答：</b>位置匹配 · 词义匹配 · 两者都匹配 · 都不匹配。两通道独立判断，可以只有一边匹配。</div>';}},
-  {title:'前N轮观察，之后才作答',body:function(){return '<div class="tut-box">前 2 轮还没有"N步前"，只需看和记，点<b>下一个</b>翻页。第 3 轮起才出现作答按钮。</div><div class="tut-box">难度自动调整：答对率 ≥ 80% → N+1；答对率 &lt; 50% → N-1。</div><div class="tut-box acc">不确定就大胆猜。目标是让脑子处于<b>轻微吃力</b>的状态——这是效果最好的训练区间。</div>';}},
+  {title:'"N步前"是什么意思？',body:function(){return '<div class="tut-box">单词像传送带一个接一个出现。<b>2-back</b> = 把当前这个，和往回数 2 格的那个比较——不是和"上一个"比。</div><div class="tut-seq"><div class="tut-tok">obdurate</div><div class="tut-tok">laconic</div><div class="tut-tok hi">sanguine</div><div class="tut-tok">laconic</div><div class="tut-tok cur">sanguine ← 当前</div></div><div class="tut-box acc">当前 = <b>sanguine</b>，往回 2 格 = <b>sanguine</b>（蓝色）→ 匹配！回答"词义匹配"</div>';}},
+  {title:'同时追踪两条信息',body:function(){return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;"><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">▦</div><b>格子位置</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一格？</div></div><div class="tut-box" style="text-align:center;"><div style="font-size:26px;margin-bottom:6px;">文</div><b>单词释义</b><div style="font-size:12px;color:var(--ink3);margin-top:3px;">和N步前同一词？</div></div></div><div class="tut-box acc"><b>四种回答：</b>位置匹配 · 词义匹配 · 两者都匹配 · 都不匹配</div>';}},
+  {title:'前N轮观察，之后才作答',body:function(){return '<div class="tut-box">前 2 轮还没有"N步前"，只需看和记，点<b>下一个</b>翻页。第 3 轮起才出现作答按钮。</div><div class="tut-box">难度自动调整：答对率 ≥ 80% → N+1；答对率 &lt; 50% → N-1。</div><div class="tut-box acc">不确定就大胆猜。目标是让脑子处于<b>轻微吃力</b>的状态。</div>';}},
 ];
 function startTut(){tutStep=0;setScr('s-tut');renderTut();}
 function renderTut(){var t=TUTS[tutStep];$$('tut-title').textContent=t.title;$$('tut-body').innerHTML=t.body();$$('tut-lbl').textContent=(tutStep+1)+' / '+TUTS.length;$$('tut-bar').style.width=((tutStep+1)/TUTS.length*100)+'%';$$('tut-prev').style.visibility=tutStep===0?'hidden':'visible';$$('tut-next').textContent=tutStep===TUTS.length-1?'明白了，返回 →':'下一步';}
 function tutNav(d){if(d>0&&tutStep===TUTS.length-1){back();return;}tutStep=Math.max(0,Math.min(TUTS.length-1,tutStep+d));renderTut();}
+
+// ═══════════════════
+// N-BACK
+// ═══════════════════
 var NB={h:[],r:0,c:0,t:0,n:2,pm:false,wm:false,phase:'start'};
 function nbStart(){NB={h:[],r:0,c:0,t:0,n:S.nbN,pm:false,wm:false,phase:'obs'};hide('nb-start');countdown('nb-timer',300,nbEnd);$$('nb-fb').textContent='';$$('nb-fb').className='fb in';nbStep();}
 function nbNext(){if(NB.phase==='obs')nbStep();}
-function nbStep(){if(NB.r>=20){nbEnd();return;}NB.r++;$$('nb-rnd').textContent=NB.r;$$('nb-bar').style.width=(NB.r/20*100)+'%';$$('nb-nbadge').textContent=NB.n;$$('nb-nv').textContent=NB.n;var pos=~~(Math.random()*9),word=WORDS[~~(Math.random()*WORDS.length)];if(NB.h.length>=NB.n&&Math.random()<.35)pos=NB.h[NB.h.length-NB.n].p;if(NB.h.length>=NB.n&&Math.random()<.35)word=NB.h[NB.h.length-NB.n].w;NB.pm=NB.h.length>=NB.n&&pos===NB.h[NB.h.length-NB.n].p;NB.wm=NB.h.length>=NB.n&&word.en===NB.h[NB.h.length-NB.n].w.en;NB.h.push({p:pos,w:word});for(var i=0;i<9;i++)$$('c'+i).className='nb-cell';$$('c'+pos).classList.add('lit');$$('nb-en').textContent=word.en;$$('nb-zh').textContent=word.zh;var tIdx=NB.h.length-1-NB.n,hHtml='';NB.h.slice(-8).forEach(function(item,i,arr){var ai=NB.h.length-arr.length+i,st;if(ai===NB.h.length-1)st='background:var(--paper2);color:var(--ink);border:1px solid var(--ink3);';else if(ai===tIdx)st='background:#e8f0fb;color:var(--accent);border:1px solid #b8cef0;';else st='background:var(--paper3);color:var(--ink3);border:1px solid var(--line);';hHtml+='<div class="hist-tok" style="'+st+'">'+item.w.en.slice(0,7)+'</div>';});$$('nb-hist').innerHTML=hHtml;var canAns=NB.h.length>NB.n;if(!canAns){NB.phase='obs';hide('nb-ans');show('nb-obs');var rem=NB.n-(NB.r-1),dots='';for(var j=0;j<NB.n;j++)dots+='<div class="obs-dot'+(j>=rem?' filled':'')+'"></div>';$$('obs-dots').innerHTML=dots;$$('obs-lbl').textContent='记忆中，还需 '+Math.max(0,rem-1)+' 步后开始作答';$$('nb-fb').textContent='';}else{NB.phase='ans';hide('nb-obs');show('nb-ans');$$('nb-fb').textContent='判断：与 '+NB.n+' 步前比较';$$('nb-fb').className='fb in';}}
+function nbStep(){
+  if(NB.r>=20){nbEnd();return;}NB.r++;
+  $$('nb-rnd').textContent=NB.r;$$('nb-bar').style.width=(NB.r/20*100)+'%';$$('nb-nbadge').textContent=NB.n;$$('nb-nv').textContent=NB.n;
+  var pos=~~(Math.random()*9),word=todayWords[~~(Math.random()*todayWords.length)];
+  if(NB.h.length>=NB.n&&Math.random()<.35)pos=NB.h[NB.h.length-NB.n].p;
+  if(NB.h.length>=NB.n&&Math.random()<.35)word=NB.h[NB.h.length-NB.n].w;
+  NB.pm=NB.h.length>=NB.n&&pos===NB.h[NB.h.length-NB.n].p;
+  NB.wm=NB.h.length>=NB.n&&word.en===NB.h[NB.h.length-NB.n].w.en;
+  NB.h.push({p:pos,w:word});
+  for(var i=0;i<9;i++)$$('c'+i).className='nb-cell';$$('c'+pos).classList.add('lit');
+  $$('nb-en').textContent=word.en;$$('nb-zh').textContent=word.zh;
+  var tIdx=NB.h.length-1-NB.n,hHtml='';
+  NB.h.slice(-8).forEach(function(item,i,arr){var ai=NB.h.length-arr.length+i,st;if(ai===NB.h.length-1)st='background:var(--paper2);color:var(--ink);border:1px solid var(--ink3);';else if(ai===tIdx)st='background:#e8f0fb;color:var(--accent);border:1px solid #b8cef0;';else st='background:var(--paper3);color:var(--ink3);border:1px solid var(--line);';hHtml+='<div class="hist-tok" style="'+st+'">'+item.w.en.slice(0,7)+'</div>';});
+  $$('nb-hist').innerHTML=hHtml;
+  var canAns=NB.h.length>NB.n;
+  if(!canAns){NB.phase='obs';hide('nb-ans');show('nb-obs');var rem=NB.n-(NB.r-1),dots='';for(var j=0;j<NB.n;j++)dots+='<div class="obs-dot'+(j>=rem?' filled':'')+'"></div>';$$('obs-dots').innerHTML=dots;$$('obs-lbl').textContent='记忆中，还需 '+Math.max(0,rem-1)+' 步后开始作答';$$('nb-fb').textContent='';}
+  else{NB.phase='ans';hide('nb-obs');show('nb-ans');$$('nb-fb').textContent='判断：与 '+NB.n+' 步前比较';$$('nb-fb').className='fb in';}
+}
 function nbA(ans){if(NB.phase!=='ans')return;var ok=(ans==='pos'&&NB.pm&&!NB.wm)||(ans==='word'&&NB.wm&&!NB.pm)||(ans==='both'&&NB.pm&&NB.wm)||(ans==='none'&&!NB.pm&&!NB.wm);NB.t++;if(ok)NB.c++;$$('nb-acc').textContent=NB.c+'/'+NB.t;if(ok){$$('nb-fb').textContent='正确';$$('nb-fb').className='fb ok';}else{var ca=NB.pm&&NB.wm?'两者都匹配':NB.pm?'位置匹配':NB.wm?'词义匹配':'都不匹配';$$('nb-fb').textContent='应为：'+ca;$$('nb-fb').className='fb er';}if(NB.t>=4&&NB.c/NB.t>=.8)NB.n=Math.min(NB.n+1,5);else if(NB.t>=4&&NB.c/NB.t<.5)NB.n=Math.max(NB.n-1,1);NB.phase='wait';setTimeout(nbStep,680);}
 function nbEnd(){clearInterval(S.timers['nb-timer']);S.nbN=NB.n;S.nbC=NB.c;S.nbT=NB.t;S.done.nb=true;hide('nb-obs');hide('nb-ans');$$('nb-fb').textContent='完成 · N='+NB.n+' · 准确率 '+Math.round(NB.c/Math.max(NB.t,1)*100)+'%';$$('nb-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
+
+// ═══════════════════
+// DISTRACT
+// ═══════════════════
 var DI={r:0,c:0,t:0,cur:null};
+function buildDiSets(){return todayWords.map(function(w){var pool=todayWords.filter(function(x){return x.en!==w.en;}).map(function(x){return x.en;});while(pool.length<4)pool.push(['resolute','pragmatic','lucid','tenacious'][pool.length%4]);return{t:w.en,zh:w.zh,d:pool.slice(0,4)};});}
 function diStart(){DI={r:0,c:0,t:0,cur:null};hide('di-start');countdown('di-timer',240,diEnd);diNext();}
-function diNext(){if(DI.r>=DI_SETS.length){diEnd();return;}DI.cur=DI_SETS[DI.r];DI.r++;$$('di-rnd').textContent=DI.r;$$('di-bar').style.width=(DI.r/DI_SETS.length*100)+'%';$$('di-word').textContent=DI.cur.t;$$('di-word').style.color='var(--accent)';$$('di-word').style.fontSize='36px';$$('di-hint').textContent='含义：'+DI.cur.zh;$$('di-chips').style.display='none';$$('di-fb').textContent='先记住这个词！';$$('di-fb').className='fb in';setTimeout(function(){$$('di-word').textContent='从以下词中找出它';$$('di-word').style.color='var(--ink3)';$$('di-word').style.fontSize='16px';$$('di-hint').textContent='';var ch=[DI.cur.t,...DI.cur.d].sort(function(){return Math.random()-.5;});$$('di-chips').innerHTML=ch.map(function(c){return '<div class="chip" onclick="diAns(\''+c+'\',this)">'+c+'</div>';}).join('');$$('di-chips').style.display='flex';},1200);}
+function diNext(){var sets=buildDiSets();if(DI.r>=sets.length){diEnd();return;}DI.cur=sets[DI.r];DI.r++;$$('di-rnd').textContent=DI.r;$$('di-bar').style.width=(DI.r/sets.length*100)+'%';$$('di-word').textContent=DI.cur.t;$$('di-word').style.color='var(--accent)';$$('di-word').style.fontSize='36px';$$('di-hint').textContent='含义：'+DI.cur.zh;$$('di-chips').style.display='none';$$('di-fb').textContent='先记住这个词！';$$('di-fb').className='fb in';setTimeout(function(){$$('di-word').textContent='从以下词中找出它';$$('di-word').style.color='var(--ink3)';$$('di-word').style.fontSize='16px';$$('di-hint').textContent='';var ch=[DI.cur.t,...DI.cur.d].sort(function(){return Math.random()-.5;});$$('di-chips').innerHTML=ch.map(function(c){return '<div class="chip" onclick="diAns(\''+c+'\',this)">'+c+'</div>';}).join('');$$('di-chips').style.display='flex';},1200);}
 function diAns(w,el){DI.t++;var ok=w===DI.cur.t;if(ok){DI.c++;el.style.background='#e2f5ec';el.style.borderColor='#a8dfc0';el.style.color='var(--green)';$$('di-fb').textContent='正确';$$('di-fb').className='fb ok';}else{el.style.background='#fde8e8';el.style.borderColor='#f0b4b4';el.style.color='var(--red)';$$('di-fb').textContent='错误，目标是：'+DI.cur.t;$$('di-fb').className='fb er';}$$('di-acc').textContent=DI.c+'/'+DI.t;$$('di-pct').textContent=Math.round(DI.c/DI.t*100)+'%';$$('di-chips').querySelectorAll('.chip').forEach(function(c){c.onclick=null;});setTimeout(function(){$$('di-chips').style.display='none';diNext();},900);}
 function diEnd(){clearInterval(S.timers['di-timer']);S.diC=DI.c;S.diT=DI.t;S.done.di=true;$$('di-fb').textContent='完成！准确率 '+Math.round(DI.c/Math.max(DI.t,1)*100)+'%';$$('di-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
+
+// ═══════════════════
+// SWITCH
+// ═══════════════════
 var SW={r:0,c:0,t:0,rts:[],ri:0,t0:0,ans:''};
 function swStart(){SW={r:0,c:0,t:0,rts:[],ri:0,t0:0,ans:''};hide('sw-start');countdown('sw-timer',180,swEnd);swNext();}
 function swNext(){if(SW.r>=14){swEnd();return;}SW.r++;if(SW.r>1&&Math.random()<.4)SW.ri=(SW.ri+1)%SW_RULES.length;var rule=SW_RULES[SW.ri],item=rule.gen();SW.ans=item.a;$$('sw-rule').textContent='规则：'+rule.label;$$('sw-stim').textContent=item.s;$$('sw-rnd').textContent=SW.r;$$('sw-bar').style.width=(SW.r/14*100)+'%';$$('sw-chips').innerHTML=item.c.map(function(c){return '<div class="chip" onclick="swAns(\''+c+'\',this)">'+c+'</div>';}).join('');$$('sw-chips').style.display='flex';SW.t0=Date.now();$$('sw-fb').textContent='快速判断！';$$('sw-fb').className='fb in';}
 function swAns(ans,el){var rt=Date.now()-SW.t0;SW.t++;SW.rts.push(rt);var ok=ans===SW.ans;if(ok){SW.c++;el.style.background='#e2f5ec';el.style.borderColor='#a8dfc0';el.style.color='var(--green)';$$('sw-fb').textContent='正确 ('+rt+'ms)';$$('sw-fb').className='fb ok';}else{el.style.background='#fde8e8';el.style.borderColor='#f0b4b4';el.style.color='var(--red)';$$('sw-fb').textContent='应为：'+SW.ans;$$('sw-fb').className='fb er';}$$('sw-acc').textContent=SW.c+'/'+SW.t;var avg=Math.round(SW.rts.reduce(function(a,b){return a+b;},0)/SW.rts.length);$$('sw-rt').textContent=avg;$$('sw-chips').querySelectorAll('.chip').forEach(function(c){c.onclick=null;});setTimeout(function(){$$('sw-chips').style.display='none';swNext();},780);}
 function swEnd(){clearInterval(S.timers['sw-timer']);S.swC=SW.c;S.swT=SW.t;S.swRts=SW.rts;S.done.sw=true;var avg=S.swRts.length?Math.round(S.swRts.reduce(function(a,b){return a+b;},0)/S.swRts.length):0;$$('sw-fb').textContent='完成！准确率 '+Math.round(S.swC/Math.max(S.swT,1)*100)+'% · 均速 '+avg+'ms';$$('sw-fb').className='fb ok';saveLocal();setTimeout(back,1500);}
-function fillDone(){var nbPct=Math.round(S.nbC/Math.max(S.nbT,1)*100),diPct=Math.round(S.diC/Math.max(S.diT,1)*100),swPct=Math.round(S.swC/Math.max(S.swT,1)*100),swAvg=S.swRts.length?Math.round(S.swRts.reduce(function(a,b){return a+b;},0)/S.swRts.length):0,elapsed=Math.round((Date.now()-S.startTs)/1000),em=Math.floor(elapsed/60),es=elapsed%60;$$('done-stats').innerHTML=[['N-back N值','N = '+S.nbN+' · 准确率 '+nbPct+'%'],['干扰抑制','准确率 '+diPct+'%'],['注意力切换','准确率 '+swPct+'% · 均速 '+swAvg+'ms'],['训练时长',em+'分'+pad(es)+'秒']].map(function(r){return '<div class="result-row"><span style="font-size:13px;color:var(--ink3);">'+r[0]+'</span><span style="font-family:var(--fm);font-size:13px;">'+r[1]+'</span></div>';}).join('');$$('done-words').innerHTML=WORDS.map(function(w){return '<div class="result-row"><span style="font-size:14px;font-weight:500;">'+w.en+'</span><span style="font-size:13px;color:var(--ink3);">'+w.zh+'</span></div>';}).join('');var wList=WORDS.map(function(w){return w.en;}).join(' · '),txt='【记忆训练打卡】Day '+S.day+' · '+S.name+'\n实验组：'+S.gid+'\n\n📊 今日数据\nN-back   N='+S.nbN+' · 准确率 '+nbPct+'%\n干扰抑制  准确率 '+diPct+'%\n注意切换  准确率 '+swPct+'% · 均速 '+swAvg+'ms\n训练时长  '+em+'分'+pad(es)+'秒\n\n📖 今日词汇\n'+wList;$$('checkin-box').textContent=txt;S.day++;saveLocal();}
-function doCopy(){var txt=$$('checkin-box').textContent;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('已复制，粘贴到微信群即可 ✓',2500);}).catch(function(){fallbackCopy(txt);});}else{fallbackCopy(txt);}}
-function fallbackCopy(txt){var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制 ✓',2000);}catch(e){toast('请手动长按复制上方文字',3000);}document.body.removeChild(ta);}
-function saveLocal(){try{localStorage.setItem('wm:'+S.gid+':'+S.name,JSON.stringify({day:S.day,nbN:S.nbN,ts:Date.now()}));}catch(e){}}
+
+// ═══════════════════
+// RECALL
+// ═══════════════════
+function startRecall(){
+  var testWords=getTestWords(),wkLabels=['第1周','第2周','第3周','第4周'];
+  $$('recall-week').textContent=wkLabels[getWeekIdx()];
+  $$('recall-items').innerHTML=testWords.map(function(w,i){return '<div class="recall-item"><div class="recall-word">'+w.en+'</div><input class="recall-inp" id="ri-'+i+'" placeholder="写出中文释义（不确定可以猜）" autocomplete="off" autocorrect="off"></div>';}).join('');
+  setScr('s-recall');
+}
+function submitRecall(){
+  var testWords=getTestWords(),correct=0,resultHtml='';
+  testWords.forEach(function(w,i){
+    var val=($$('ri-'+i).value||'').trim();
+    var ok=val!==''&&w.accept.some(function(a){return val.includes(a)||a.includes(val);});
+    if(ok)correct++;
+    var badge=val===''?'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:var(--paper3);color:var(--ink3);font-family:var(--fm);">未填</span>':ok?'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#e2f5ec;color:var(--green);font-family:var(--fm);">正确</span>':'<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:#fde8e8;color:var(--red);font-family:var(--fm);">错误</span>';
+    resultHtml+='<div class="result-row" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="display:flex;align-items:center;justify-content:space-between;width:100%;"><span style="font-size:14px;font-weight:500;">'+w.en+'</span>'+badge+'</div><div style="font-size:12px;color:var(--ink3);font-family:var(--fm);">你写：'+(val||'—')+'　答案：'+w.zh+'</div></div>';
+  });
+  var pct=Math.round(correct/testWords.length*100);
+  var wkIdx=getWeekIdx(),wkLabels=['第1周','第2周','第3周','第4周'],wkLabel=wkLabels[wkIdx];
+  $$('recall-score-line').textContent=wkLabel+' · 答对 '+correct+' / '+testWords.length+' · 得分 '+pct+'%';
+  $$('recall-result-list').innerHTML=resultHtml;
+  // save recall score
+  S.recallScores=S.recallScores.filter(function(r){return r.week!==wkIdx+1;});
+  S.recallScores.push({week:wkIdx+1,score:correct,total:testWords.length,pct:pct});
+  var vals=testWords.map(function(w,i){return{en:w.en,val:($$('ri-'+i)?$$('ri-'+i).value||'':'').trim()};});
+  var txt='【词汇回忆测试】Day '+S.day+' · '+S.name+'\n实验组：'+S.gid+'  '+wkLabel+'\n\n📝 得分：'+correct+'/'+testWords.length+'（'+pct+'%）\n\n'+vals.map(function(v){var ok=testWords.find(function(w){return w.en===v.en;}).accept.some(function(a){return v.val&&(v.val.includes(a)||a.includes(v.val));});return v.en+' → '+(ok?'✓':'✗')+' '+v.val;}).join('\n');
+  $$('recall-checkin').textContent=txt;
+  S.recallDone=true;saveLocal();setScr('s-recall-result');
+}
+
+// ═══════════════════
+// DONE
+// ═══════════════════
+function fillDone(){
+  var nbPct=Math.round(S.nbC/Math.max(S.nbT,1)*100),diPct=Math.round(S.diC/Math.max(S.diT,1)*100),swPct=Math.round(S.swC/Math.max(S.swT,1)*100);
+  var swAvg=S.swRts.length?Math.round(S.swRts.reduce(function(a,b){return a+b;},0)/S.swRts.length):0;
+  var elapsed=Math.round((Date.now()-S.startTs)/1000),em=Math.floor(elapsed/60),es=elapsed%60;
+  var wkLabels=['第1周','第2周','第3周','第4周'],wkLabel=wkLabels[getWeekIdx()];
+  $$('done-week-label').textContent=wkLabel;
+  $$('done-stats').innerHTML=[['N-back N值','N = '+S.nbN+' · 准确率 '+nbPct+'%'],['干扰抑制','准确率 '+diPct+'%'],['注意力切换','准确率 '+swPct+'% · 均速 '+swAvg+'ms'],['训练时长',em+'分'+pad(es)+'秒']].map(function(r){return '<div class="result-row"><span style="font-size:13px;color:var(--ink3);">'+r[0]+'</span><span style="font-family:var(--fm);font-size:13px;">'+r[1]+'</span></div>';}).join('');
+  $$('done-words').innerHTML=todayWords.map(function(w){return '<div class="result-row"><span style="font-size:14px;font-weight:500;">'+w.en+'</span><span style="font-size:13px;color:var(--ink3);">'+w.zh+'</span></div>';}).join('');
+  var wList=todayWords.map(function(w){return w.en;}).join(' · ');
+  var txt='【记忆训练打卡】Day '+S.day+' · '+S.name+'\n实验组：'+S.gid+'  '+wkLabel+'\n\n📊 今日数据\nN-back   N='+S.nbN+' · 准确率 '+nbPct+'%\n干扰抑制  准确率 '+diPct+'%\n注意切换  准确率 '+swPct+'% · 均速 '+swAvg+'ms\n训练时长  '+em+'分'+pad(es)+'秒\n\n📖 今日词汇\n'+wList+'\n\n⏰ 提醒：48小时后记得完成词汇回忆测试';
+  $$('checkin-box').textContent=txt;
+  S.day++;saveLocal();
+}
+
+// ═══════════════════
+// EXPORT
+// ═══════════════════
+function showExport(){
+  $$('export-string').textContent=buildExportString();
+  setScr('s-export');
+}
+
+// ═══════════════════
+// REPORT
+// ═══════════════════
+function renderReport(rptData){
+  var sc=rptData;
+  var baseline=sc.baseline||0,w1=sc.w1||0,w2=sc.w2||0,w3=sc.w3||0,w4=sc.w4||0;
+  var improvement=w4-baseline,impPct=baseline>0?Math.round((w4-baseline)/baseline*100):0;
+  var finalN=sc.finalN||2,days=sc.days||0;
+  var wkScores=[baseline,w1,w2,w3,w4];
+  var best=Math.max(w1,w2,w3,w4);
+  var wkLabels=['基线','第1周','第2周','第3周','第4周'];
+  var verdict='',verdictBorder='var(--line)';
+  if(impPct>=20){verdict='经过 <b>'+days+'</b> 天系统训练，你的延迟词汇回忆能力提升了 <b>'+impPct+'%</b>，超过实验设定的 20% 目标。N-back 最终达到 N='+finalN+'，说明工作记忆容量得到了真实提升。这个结果有力地支持了训练方案的有效性。';verdictBorder='var(--green)';}
+  else if(impPct>=10){verdict='经过 <b>'+days+'</b> 天训练，词汇回忆得分提升了 <b>'+impPct+'%</b>。进步真实可见，虽未达到 20% 目标线，但工作记忆容量（N='+finalN+'）有明显提升。建议后续适当延长每日训练时长。';}
+  else if(impPct>0){verdict='你完成了 '+days+' 天训练，词汇回忆得分有小幅提升（<b>+'+impPct+'%</b>）。N-back 最终 N='+finalN+'。提升幅度偏小，可能与训练连续性有关。感谢你认真参与实验。';}
+  else{verdict='你完成了 '+days+' 天训练，本阶段测试分数与基线接近。这类结果同样重要——它帮助我们判断训练方案需要哪些改进。N-back 最终 N='+finalN+'，说明专注力训练仍有收获。';}
+  var wkComments=['实验基准分，用于后续对比。',w1>baseline+10?'第1周出现明显进步，训练效果快速显现。':w1>=baseline?'与基线持平，效果正在积累。':'略低于基线，属正常波动。',w2>w1?'持续提升，训练节奏良好。':w2===w1?'与上周持平，处于平台期。':'小幅回落，可能与练习状态有关。',w3>w2?'第3周继续提升，迁移效果正在显现。':w3>=w2?'维持稳定。':'有所回落，建议加强训练强度。',w4>=best?'第4周达到全程最高分，训练在最后阶段集中爆发。':'训练效果已有积累，继续坚持。'];
+  var impLabel=(improvement>=0?'+':'')+improvement+'分';
+  var impClass=improvement>=20?'up':improvement>=0?'mid':'';
+  var html='<div class="rpt-hero"><div class="rpt-name">'+sc.name+'</div><div class="rpt-sub">'+sc.gid+' 组 · 4周工作记忆训练实验报告</div></div>';
+  html+='<div class="rpt-verdict" style="border-left-color:'+verdictBorder+';">'+verdict+'</div>';
+  html+='<div class="rpt-4cards"><div class="rpt-card"><div class="rpt-card-n '+impClass+'">'+impLabel+'</div><div class="rpt-card-l">总提升</div></div><div class="rpt-card"><div class="rpt-card-n">'+w4+'<span style="font-size:14px;">分</span></div><div class="rpt-card-l">最终得分</div></div><div class="rpt-card"><div class="rpt-card-n">N='+finalN+'</div><div class="rpt-card-l">最终N值</div></div><div class="rpt-card"><div class="rpt-card-n">'+days+'</div><div class="rpt-card-l">训练天数</div></div></div>';
+  html+='<div class="rpt-chart-wrap"><div class="lbl" style="margin-bottom:.75rem;">得分变化曲线</div><canvas id="rpt-chart" height="160"></canvas></div>';
+  html+='<div class="card"><div class="lbl" style="margin-bottom:.75rem;">逐周分析</div>';
+  [0,1,2,3,4].forEach(function(i){var s=wkScores[i],pillClass=s>=75?'hi':s>=55?'mid':'lo';html+='<div class="rpt-week-item"><div class="rpt-week-head"><span class="rpt-week-name">'+wkLabels[i]+'</span><span class="rpt-score-pill '+pillClass+'">'+s+' 分</span></div><div class="rpt-week-comment">'+wkComments[i]+'</div></div>';});
+  html+='</div>';
+  var shareText='【实验报告】'+sc.name+' · '+sc.gid+'组\n\n基线 → 第4周：'+baseline+'分 → '+w4+'分\n总提升：'+impLabel+'（'+impPct+'%）\nN-back N值：N='+finalN+'\n训练天数：'+days+' 天\n\n'+(impPct>=20?'✅ 已达成 20% 提升目标':'📊 数据已记录，感谢参与实验');
+  html+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;"><div class="lbl" style="margin-bottom:0;">分享你的结果</div><div style="font-size:11px;color:var(--ink3);font-family:var(--fm);">复制发到群里</div></div><div class="checkin-box" id="rpt-share">'+shareText+'</div><button class="btn btn-ink btn-block" onclick="fbCopy(document.getElementById(\'rpt-share\').textContent)">一键复制</button></div>';
+  $$('report-content').innerHTML=html;
+  setScr('s-report');
+  setTimeout(function(){
+    var ctx=$$('rpt-chart');if(!ctx)return;
+    var isDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+    var gridC=isDark?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)',txtC=isDark?'#9c9a92':'#7a7670';
+    new Chart(ctx,{type:'line',data:{labels:wkLabels,datasets:[{label:'测试得分',data:wkScores,borderColor:'#1a1814',backgroundColor:'rgba(26,24,20,.06)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#1a1814',tension:.35,fill:true},{label:'目标线',data:wkLabels.map(function(){return Math.round(baseline*1.2);}),borderColor:'#2d7a5a',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'分';}}}},scales:{x:{grid:{color:gridC},ticks:{color:txtC,font:{size:11}}},y:{min:0,max:100,grid:{color:gridC},ticks:{color:txtC,font:{size:11},callback:function(v){return v+'分';}}}}}}); },100);
+}
+
+// ═══════════════════
+// COPY
+// ═══════════════════
+function fbCopy(txt){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast('已复制 ✓',2000);}).catch(function(){_fbCopy(txt);});}else{_fbCopy(txt);}}
+function _fbCopy(txt){var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制 ✓',2000);}catch(e){toast('请手动长按复制',3000);}document.body.removeChild(ta);}
 </script>
 </body>
 </html>
